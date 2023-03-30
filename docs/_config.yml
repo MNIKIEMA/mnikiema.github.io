@@ -32,7 +32,6 @@ twitter_username: mahamadiN
 github_username:  MNIKIEMA
 
 # Build settings
-remote_theme: coogie/oscailte
 theme: oscailte
 plugins:
   - jekyll-remote-theme
