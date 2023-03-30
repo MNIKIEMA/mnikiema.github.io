@@ -35,7 +35,6 @@ github_username:  MNIKIEMA
 remote_theme: coogie/oscailte
 theme: oscailte
 plugins:
-  - jekyll-feed
   - jekyll-remote-theme
 
 # Exclude from processing.
