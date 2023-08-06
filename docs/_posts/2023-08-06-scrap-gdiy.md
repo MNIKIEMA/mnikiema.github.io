@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Scape the lost listen podcast in France : GDIY"
+title:  Scape the lost listen podcast in France GDIY
 date:   2023-08-06 21:55:51 +0200
 categories: scraping
 ---
