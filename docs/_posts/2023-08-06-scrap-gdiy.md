@@ -26,12 +26,11 @@ class AudioLoader(object):
         self.data_path = data_path
         self.loaded_episodes = self.load_loaded_episodes()
 ```
-### 
+### Loading and Updating Episode Details
 
-Loading and Updating Episode Details
-The load_loaded_episodes method checks for the existence of a loaded_episodes.json file and creates one if it doesn't exist, to store the details of loaded episodes.
+The `load_loaded_episodes` method checks for the existence of a loaded_episodes.json file and creates one if it doesn't exist, to store the details of loaded episodes.
 
-The update_loaded_episodes method updates the loaded_episodes set and JSON file with new episode details.
+The `update_loaded_episodes` method updates the loaded_episodes set and JSON file with new episode details.
 
 ```    
 def load_loaded_episodes(self):
@@ -47,9 +46,9 @@ def update_loaded_episodes(self, episode_id):
         json.dump(list(self.loaded_episodes), f)
 ```
 ### Fetching and Processing Data
-The load_data method fetches all episodes from the podcast’s RSS feed using the requests and BeautifulSoup libraries.
+The `load_data` method fetches all episodes from the podcast's RSS feed using the requests and BeautifulSoup libraries.
 
-The process_data method iterates over all episodes and filters out those with certain phrases in the title (like "[EXTRAIT]"). It also prevents downloading episodes that have already been loaded.
+The `process_data` method iterates over all episodes and filters out those with certain phrases in the title (like "[EXTRAIT]"). It also prevents downloading episodes that have already been loaded.
 
 ```
 def load_data(self, feed_url):
@@ -86,8 +85,9 @@ def process_data(self):
     
     return audio_info
 ```
+
 ### Downloading Episodes
-The download_episode method downloads an episode’s audio file and saves it with a simplified name derived from the title.
+The `download_episode` method downloads an episode's audio file and saves it with a simplified name derived from the title.
 
 ```
 def download_episode(self, episode_url, audio_name):
@@ -95,8 +95,9 @@ def download_episode(self, episode_url, audio_name):
     with open(os.path.join(self.data_path, audio_name+".mp3"), "wb") as fp:
         fp.write(audio.content)
 ```
+
 ### Simplifying File Names
-The simplify_name method simplifies episode names based on certain conditions to create a clean and concise file name for each downloaded audio file.
+The `simplify_name` method simplifies episode names based on certain conditions to create a clean and concise file name for each downloaded audio file.
 
 ```
 def simplify_name(self, file_name:str):
@@ -113,9 +114,9 @@ def simplify_name(self, file_name:str):
     return new_filename
 ```
 ## Conclusion
-With this Python script, you can automatically load and download episodes of the "Generation Do It Yourself" podcast, saving you time and effort. You can customize the script to work with other podcasts by modifying the RSS feed URL and adjusting the naming conventions in the simplify_name method.
+With this Python script, you can automatically load and download episodes of the Generation Do It Yourself podcast, saving you time and effort. You can customize the script to work with other podcasts by modifying the RSS feed URL and adjusting the naming conventions in the `simplify_name` method.
 
-Feel free to extend this script with more features, such as adding metadata to the audio files, creating playlists, or integrating with a podcast player.
+Feel free to extend this script with more features, such as adding metadata to the audio files.
 
 [gdiy]: https://gdiy.fr
 [jekyll-gh]:   https://github.com/jekyll/jekyll
