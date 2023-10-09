@@ -1,6 +1,8 @@
 ---
 layout: post
 title:  Scraping the most listened podcast in France, GDIY
+thumbnail-img: /assets/img/gdiy.jpeg
+tags: [Python, Scraping, Podcast]
 date:   2023-08-06 21:55:51 +0200
 categories: scraping
 ---
