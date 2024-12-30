@@ -1,0 +1,72 @@
+[
+  {
+    "objectID": "things_i_learned/test/index.html",
+    "href": "things_i_learned/test/index.html",
+    "title": "Welcome To My Blog",
+    "section": "",
+    "text": "This is the first post in a Quarto blog. Welcome!\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+  },
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome To My Blog",
+    "section": "",
+    "text": "This is the first post in a Quarto blog. Welcome!\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+  },
+  {
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html",
+    "title": "Scraping the most listened podcast in France, GDIY",
+    "section": "",
+    "text": "The podcast Generation Do It Yourself is one of the most listen in France. I listen this podcast every weekend and I decide to use my programming skill to scrap audio data from the web site. This post will also guide you to download audio from your favorite podcasts."
+  },
+  {
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#prerequisites",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#prerequisites",
+    "title": "Scraping the most listened podcast in France, GDIY",
+    "section": "Prerequisites",
+    "text": "Prerequisites\nBefore we dive into the details, you need to install the prerequisites by running: pip install requests beautifulsoup4 tqdm"
+  },
+  {
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#understanding-the-python-script",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#understanding-the-python-script",
+    "title": "Scraping the most listened podcast in France, GDIY",
+    "section": "Understanding the Python Script",
+    "text": "Understanding the Python Script\nLet’s delve into the Python script that automates the process of downloading podcast episodes. I will introduce you to a class named AudioLoader that is equipped with methods to perform various tasks such as loading, updating, downloading, and processing audio data.\n\nClass Initialization\nThe AudioLoader class initializes with a data_path parameter which is the path to save the downloaded audio files and keep track of loaded episodes. The loaded_episodes set stores the loaded episode names.\nclass AudioLoader(object):\n    def __init__(self, data_path):\n        self.data_path = data_path\n        self.loaded_episodes = self.load_loaded_episodes()\n\n\nLoading and Updating Episode Details\nThe load_loaded_episodes method checks for the existence of a loaded_episodes.json file and creates one if it doesn’t exist, to store the details of loaded episodes.\nThe update_loaded_episodes method updates the loaded_episodes set and JSON file with new episode details.\ndef load_loaded_episodes(self):\n        if not os.path.exists(os.path.join(self.data_path,'loaded_episodes.json')):\n            with open(os.path.join(self.data_path,'loaded_episodes.json'), 'w') as f:\n                json.dump([], f)\n        with open(os.path.join(self.data_path,'loaded_episodes.json'), 'r') as f:\n            return set(json.load(f))\n        \ndef update_loaded_episodes(self, episode_id):\n    self.loaded_episodes.add(episode_id)\n    with open(os.path.join(self.data_path,'loaded_episodes.json'), 'w') as f:\n        json.dump(list(self.loaded_episodes), f)\n\n\nFetching and Processing Data\nThe load_data method fetches all episodes from the podcast’s RSS feed using the requests and BeautifulSoup libraries.\nThe process_data method iterates over all episodes and filters out those with certain phrases in the title (like “[EXTRAIT]”). It also prevents downloading episodes that have already been loaded.\ndef load_data(self, feed_url):\n        page = requests.get(feed_url)\n        soup = BeautifulSoup(page.content, \"xml\")\n        return soup.find_all('item')\n    \ndef process_data(self):\n    all_name = set()\n    audio_info = {}\n    audio_to_skip = [\"[EXTRAIT]\",\"[EXTRACT]\",\"[REDIFF]\"]\n    data = self.load_data(\"https://rss.art19.com/generation-do-it-yourself\")\n    for episode in data:\n        link = episode.find(\"enclosure\")[\"url\"]\n        title = episode.find(\"title\").text\n        episode_id = \" \".join(title.split(\" - \")[:-1]).replace(\"#\", \"\")\n        episode_id = re.sub(r'[%/!@#\\*\\$\\?\\+\\^\\\\\\\\\\\\]', '', episode_id)\n        \n        skip = [skip_audio for skip_audio in audio_to_skip if skip_audio in title]\n        if not skip:\n\n            if episode_id not in self.loaded_episodes:\n                try:\n                    episode_id = self.simplify_name(episode_id)\n                except:\n                    print(title)\n\n                if episode_id in all_name:\n                    episode_id = episode_id+\"-1\"\n                audio_info[episode_id] = title\n                all_name.add(episode_id)\n                self.download_episode(link, episode_id)\n                self.update_loaded_episodes(episode_id)\n    \n    return audio_info\n\n\nDownloading Episodes\nThe download_episode method downloads an episode’s audio file and saves it with a simplified name derived from the title.\ndef download_episode(self, episode_url, audio_name):\n    audio = requests.get(episode_url)\n    with open(os.path.join(self.data_path, audio_name+\".mp3\"), \"wb\") as fp:\n        fp.write(audio.content)\n\n\nSimplifying File Names\nThe simplify_name method simplifies episode names based on certain conditions to create a clean and concise file name for each downloaded audio file.\ndef simplify_name(self, file_name:str):\n    file_name = file_name.strip()\n    if file_name.startswith(\"COVID\"):\n        new_filename = \"-\".join(file_name.split()[:2])\n    elif file_name.lower().startswith(\"hors\"):\n        new_filename = file_name.split()\n        new_filename = \"-\".join(new_filename[:2])\n    elif file_name.startswith(\"Early\"):\n        new_filename = \"-\".join(file_name.split()[:3])\n    else:\n        new_filename = file_name.split()[0]\n    return new_filename"
+  },
+  {
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#conclusion",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#conclusion",
+    "title": "Scraping the most listened podcast in France, GDIY",
+    "section": "Conclusion",
+    "text": "Conclusion\nWith this Python script, you can automatically load and download episodes of the Generation Do It Yourself podcast, saving you time and effort. You can customize the script to work with other podcasts by modifying the RSS feed URL and adjusting the naming conventions in the simplify_name method.\nFeel free to extend this script with more features, such as adding metadata to the audio files."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this blog"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Hi, I’m Mahamadi NIKIEMA",
+    "section": "",
+    "text": "Scraping the most listened podcast in France, GDIY\n\n\n\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\nDec 25, 2024\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 22, 2024\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html",
+    "href": "posts/post-with-code/index.html",
+    "title": "Post With Code",
+    "section": "",
+    "text": "This is a post with executable code."
+  },
+  {
+    "objectID": "things_i_learned/index.html",
+    "href": "things_i_learned/index.html",
+    "title": "Today I Learned",
+    "section": "",
+    "text": "Welcome To My Blog\n\n\n\n\n\n\n\n\n\n\n\nDec 22, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\nNo matching items"
+  }
+]

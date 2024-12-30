@@ -1,0 +1,28 @@
+project:
+  type: website
+  output-dir: docs
+
+execute:
+  freeze: auto
+
+website:
+  title: "Mahamadi NIKIEMA"
+  navbar:
+    right:
+      - about.qmd
+      - icon: github
+        href: https://github.com/MNIKIEMA
+      - icon: twitter
+        href: https://x.com/MahamadiN
+    left:
+    # 🏠 📮 👨🏽‍💻 🍎 🎤 📚
+    - text: "Blog"
+      href: index.qmd
+    - text: TILs
+      file: things_i_learned/index.qmd
+format:
+  html:
+    theme: 
+      dark: [darkly]
+      light: [flatly]
+    css: styles.css

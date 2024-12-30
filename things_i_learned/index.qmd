@@ -1,0 +1,11 @@
+---
+title: Today I Learned
+description: Notes on Learning New Stuffs
+listing:
+  type: default
+  contents: 
+   - "/*.ipynb"
+   - "/*.qmd"
+   - "/*/index.qmd"
+margin-footer: <br>
+---
