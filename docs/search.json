@@ -1,19 +1,5 @@
 [
   {
-    "objectID": "things_i_learned/test/index.html",
-    "href": "things_i_learned/test/index.html",
-    "title": "Welcome To My Blog",
-    "section": "",
-    "text": "This is the first post in a Quarto blog. Welcome!\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
-  },
-  {
-    "objectID": "posts/welcome/index.html",
-    "href": "posts/welcome/index.html",
-    "title": "Welcome To My Blog",
-    "section": "",
-    "text": "This is the first post in a Quarto blog. Welcome!\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
-  },
-  {
     "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html",
     "href": "posts/gdiy/2023-08-06-scrap-gdiy.html",
     "title": "Scraping the most listened podcast in France, GDIY",
@@ -42,6 +28,20 @@
     "text": "Conclusion\nWith this Python script, you can automatically load and download episodes of the Generation Do It Yourself podcast, saving you time and effort. You can customize the script to work with other podcasts by modifying the RSS feed URL and adjusting the naming conventions in the simplify_name method.\nFeel free to extend this script with more features, such as adding metadata to the audio files."
   },
   {
+    "objectID": "things_i_learned/index.html",
+    "href": "things_i_learned/index.html",
+    "title": "Today I Learned",
+    "section": "",
+    "text": "Welcome To My Blog\n\n\n\n\n\n\n\n\n\n\n\nDec 22, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html",
+    "href": "posts/post-with-code/index.html",
+    "title": "Post With Code",
+    "section": "",
+    "text": "This is a post with executable code."
+  },
+  {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About",
@@ -56,17 +56,17 @@
     "text": "Scraping the most listened podcast in France, GDIY\n\n\n\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\nDec 25, 2024\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 22, 2024\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "posts/post-with-code/index.html",
-    "href": "posts/post-with-code/index.html",
-    "title": "Post With Code",
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome To My Blog",
     "section": "",
-    "text": "This is a post with executable code."
+    "text": "This is the first post in a Quarto blog. Welcome!\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
   },
   {
-    "objectID": "things_i_learned/index.html",
-    "href": "things_i_learned/index.html",
-    "title": "Today I Learned",
+    "objectID": "things_i_learned/test/index.html",
+    "href": "things_i_learned/test/index.html",
+    "title": "Welcome To My Blog",
     "section": "",
-    "text": "Welcome To My Blog\n\n\n\n\n\n\n\n\n\n\n\nDec 22, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\nNo matching items"
+    "text": "This is the first post in a Quarto blog. Welcome!\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
   }
 ]

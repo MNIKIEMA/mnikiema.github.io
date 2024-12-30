@@ -1,16 +1,16 @@
 [
   {
+    "listing": "/things_i_learned/index.html",
+    "items": [
+      "/things_i_learned/test/index.html"
+    ]
+  },
+  {
     "listing": "/index.html",
     "items": [
       "/posts/gdiy/2023-08-06-scrap-gdiy.html",
       "/posts/post-with-code/index.html",
       "/posts/welcome/index.html"
-    ]
-  },
-  {
-    "listing": "/things_i_learned/index.html",
-    "items": [
-      "/things_i_learned/test/index.html"
     ]
   }
 ]
