@@ -1,11 +1,91 @@
 ---
-title: "Welcome To My Blog"
+title: "Serialisation with Msgspec"
 author: "Mahamadi NIKIEMA"
 date: "2024-12-22"
-categories: [news]
+description: "Another Serializer in Python"
+categories: [python, TIL]
 ---
 
-This is the first post in a Quarto blog. Welcome!
+
+While Pydantic is well-known for serialization and validation in Python, I recently discovered [msgspec](https://github.com/jcrist/msgspec), a lightning-fast library that supports encoding and decoding various formats, including **JSON**, **YAML**, **TOML**, and **MessagePack**.
 
 
-Since this post doesn't specify an explicit `image`, the first image in the post will be used in the listing page of posts.
+## Encoding
+
+You can encode Python objects into JSON or MessagePack.
+
+```{python}
+
+import msgspec
+
+# Encoding as JSON
+json_data = msgspec.json.encode({"name": "awesome name"})
+print(json_data)
+
+# Encode as msgpack
+msgpack_data = msgspec.msgpack.encode({"name": "awesome name"})
+print(msgpack_data)
+
+```
+
+
+## The Core: `msgspec.Struct`
+
+The core component is the module ``msgspec.Struct``.
+
+At the heart of msgspec is the ``Struct`` class, which provides structure and type safety for your data models.
+
+### Defining a Structured Mode
+
+```{python}
+import msgspec
+from typing import Set
+
+
+class ConfigStrategy(msgspec.Struct):
+    name: str
+    language: str
+    stop_words: Set[str] = set()
+
+
+spacy_cfg = ConfigStrategy(name="spacy", language="french")
+print(spacy_cfg)
+```
+
+
+Encoding the data
+
+You can encode the structured object directly into JSON:
+
+```{python}
+
+msgspec.json.encode(spacy_cfg)
+```
+
+Decoding the data
+
+JSON Decoding
+
+By default, `msgspec` does not perform type validation during the decoding:
+
+```{python}
+
+msgspec.json.decode(b'{"name":"spacy","language":"french","stop_words":[]}')
+```
+
+
+Type Validation
+
+``msgspec`` makes it easy to decode serialized data into a structured object, complete with type validation:
+
+```{python}
+
+msgspec.json.decode(b'{"name":"spacy","language":"french","stop_words":[]}', type=ConfigStrategy)
+```
+
+
+If you're looking for a high-performance alternative to libraries like Pydantic, give msgspec a try! 
+
+
+
+

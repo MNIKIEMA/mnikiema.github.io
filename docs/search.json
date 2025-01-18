@@ -28,25 +28,11 @@
     "text": "Conclusion\nWith this Python script, you can automatically load and download episodes of the Generation Do It Yourself podcast, saving you time and effort. You can customize the script to work with other podcasts by modifying the RSS feed URL and adjusting the naming conventions in the simplify_name method.\nFeel free to extend this script with more features, such as adding metadata to the audio files."
   },
   {
-    "objectID": "things_i_learned/index.html",
-    "href": "things_i_learned/index.html",
-    "title": "Today I Learned",
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome To My Blog",
     "section": "",
-    "text": "Welcome To My Blog\n\n\n\n\n\n\n\n\n\n\n\nDec 22, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "posts/post-with-code/index.html",
-    "href": "posts/post-with-code/index.html",
-    "title": "Post With Code",
-    "section": "",
-    "text": "This is a post with executable code."
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "About this blog"
+    "text": "This is the first post in a Quarto blog. Welcome!\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
   },
   {
     "objectID": "index.html",
@@ -56,17 +42,45 @@
     "text": "Scraping the most listened podcast in France, GDIY\n\n\n\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\nDec 25, 2024\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 22, 2024\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "posts/welcome/index.html",
-    "href": "posts/welcome/index.html",
-    "title": "Welcome To My Blog",
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
     "section": "",
-    "text": "This is the first post in a Quarto blog. Welcome!\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+    "text": "About this blog"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html",
+    "href": "posts/post-with-code/index.html",
+    "title": "Post With Code",
+    "section": "",
+    "text": "This is a post with executable code."
+  },
+  {
+    "objectID": "things_i_learned/index.html",
+    "href": "things_i_learned/index.html",
+    "title": "Today I Learned",
+    "section": "",
+    "text": "Serialisation with Msgspec\n\n\n\n\n\n\npython\n\n\nTIL\n\n\n\nAnother Serializer in Python\n\n\n\n\n\nDec 22, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "things_i_learned/test/index.html",
     "href": "things_i_learned/test/index.html",
-    "title": "Welcome To My Blog",
+    "title": "Serialisation with Msgspec",
     "section": "",
-    "text": "This is the first post in a Quarto blog. Welcome!\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+    "text": "While Pydantic is well-known for serialization and validation in Python, I recently discovered msgspec, a lightning-fast library that supports encoding and decoding various formats, including JSON, YAML, TOML, and MessagePack."
+  },
+  {
+    "objectID": "things_i_learned/test/index.html#encoding",
+    "href": "things_i_learned/test/index.html#encoding",
+    "title": "Serialisation with Msgspec",
+    "section": "Encoding",
+    "text": "Encoding\nYou can encode Python objects into JSON or MessagePack.\n\nimport msgspec\n\n# Encoding as JSON\njson_data = msgspec.json.encode({\"name\": \"awesome name\"})\nprint(json_data)\n\n# Encode as msgpack\nmsgpack_data = msgspec.msgpack.encode({\"name\": \"awesome name\"})\nprint(msgpack_data)\n\nb'{\"name\":\"awesome name\"}'\nb'\\x81\\xa4name\\xacawesome name'"
+  },
+  {
+    "objectID": "things_i_learned/test/index.html#the-core-msgspec.struct",
+    "href": "things_i_learned/test/index.html#the-core-msgspec.struct",
+    "title": "Serialisation with Msgspec",
+    "section": "The Core: msgspec.Struct",
+    "text": "The Core: msgspec.Struct\nThe core component is the module msgspec.Struct.\nAt the heart of msgspec is the Struct class, which provides structure and type safety for your data models.\n\nDefining a Structured Mode\n\nimport msgspec\nfrom typing import Set\n\n\nclass ConfigStrategy(msgspec.Struct):\n    name: str\n    language: str\n    stop_words: Set[str] = set()\n\n\nspacy_cfg = ConfigStrategy(name=\"spacy\", language=\"french\")\nprint(spacy_cfg)\n\nConfigStrategy(name='spacy', language='french', stop_words=set())\n\n\nEncoding the data\nYou can encode the structured object directly into JSON:\n\nmsgspec.json.encode(spacy_cfg)\n\nb'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}'\n\n\nDecoding the data\nJSON Decoding\nBy default, msgspec does not perform type validation during the decoding:\n\nmsgspec.json.decode(b'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}')\n\n{'name': 'spacy', 'language': 'french', 'stop_words': []}\n\n\nType Validation\nmsgspec makes it easy to decode serialized data into a structured object, complete with type validation:\n\nmsgspec.json.decode(b'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}', type=ConfigStrategy)\n\nConfigStrategy(name='spacy', language='french', stop_words=set())\n\n\nIf you’re looking for a high-performance alternative to libraries like Pydantic, give msgspec a try!"
   }
 ]
