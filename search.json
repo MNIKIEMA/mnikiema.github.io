@@ -1,0 +1,135 @@
+[
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html",
+    "href": "posts/layernorm-rmsnorm/normalization.html",
+    "title": "Normalization in Transformers",
+    "section": "",
+    "text": "Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:\nKey benefits of normalization: - Prevents overfitting. - Improves generalization. - Stabilizes training dynamics. - Boosts performance on large-scale tasks."
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#introduction",
+    "href": "posts/layernorm-rmsnorm/normalization.html#introduction",
+    "title": "Normalization in Transformers",
+    "section": "",
+    "text": "Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:\nKey benefits of normalization: - Prevents overfitting. - Improves generalization. - Stabilizes training dynamics. - Boosts performance on large-scale tasks."
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#normalization-methods-in-transformers",
+    "href": "posts/layernorm-rmsnorm/normalization.html#normalization-methods-in-transformers",
+    "title": "Normalization in Transformers",
+    "section": "Normalization Methods in Transformers",
+    "text": "Normalization Methods in Transformers\nThere are many normalization methods in Transformers. Some of them are:\n\nLayer Normalization (LayerNorm)\nRoot Mean Square Normalization (RMSNorm)"
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#layernorm",
+    "href": "posts/layernorm-rmsnorm/normalization.html#layernorm",
+    "title": "Normalization in Transformers",
+    "section": "LayerNorm",
+    "text": "LayerNorm\nLayerNorm is a normalization method that is used in the original Transformer model. It is used to normalize the input to the model. The formula for LayerNorm is:\n\\[\ny = \\gamma \\times \\frac{x - \\mu}{\\sigma + \\epsilon} + \\beta\n\\]\n\n\\(x\\): Input tensor\n\n\\(\\mu\\): Mean of the features\n\n\\(\\sigma\\): Standard deviation of the features\n\n\\(\\epsilon\\): Small constant for numerical stability\n\n\\(\\gamma\\), \\(\\beta\\): Learnable scale and bias parameters\n\nPyTorch Implementation:\nimport torch\nimport torch.nn as nn\n\nclass SimpleLayerNorm(nn.Module):\n    def __init__(self, layer_shape, eps: float = 1e-6) -&gt; None:\n        super().__init__()\n        self.layer_shape = (layer_shape,) if isinstance(layer_shape, int) else tuple(layer_shape)\n        self.eps = eps\n        self.gamma = nn.Parameter(torch.ones(*self.layer_shape))\n        self.beta = nn.Parameter(torch.zeros(*self.layer_shape))\n\n    def forward(self, x: torch.Tensor):\n        start_dim = x.dim() - len(self.layer_shape)\n        norm_dim = tuple(range(start_dim, x.dim()))\n        variance = x.var(norm_dim, keepdim=True, unbiased=False)\n        mean = x.mean(norm_dim, keepdim=True)\n        norm_x = (x - mean) / torch.sqrt(variance + self.eps)\n        norm_x = self.gamma*norm_x + self.beta\n        return norm_x"
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#rmsnorm",
+    "href": "posts/layernorm-rmsnorm/normalization.html#rmsnorm",
+    "title": "Normalization in Transformers",
+    "section": "RMSNorm",
+    "text": "RMSNorm\nRMSNorm is a more recent variant used in models like LLaMA-3 and Qwen-3. It removes the mean subtraction step, normalizing only by the Root Mean Square (RMS) of activations.\n\\[\ny = \\frac{x}{\\sqrt{\\epsilon + \\sum_{i=1}^n x_i^2}}\\] where \\(x\\) is the input, \\(y\\) is the output, and \\(\\epsilon\\) is a small constant.\nIn Python, you can use the following code to implement RMSNorm:\nimport torch\nimport torch.nn as nn\n\n\nclass RMSNorm(nn.Module):\n    def __init__(self, emb_dim, eps=1e-6, bias=False, qwen3_compatible=True):\n        super().__init__()\n        self.eps = eps\n        self.qwen3_compatible = qwen3_compatible\n        self.scale = nn.Parameter(torch.ones(emb_dim))\n        self.shift = nn.Parameter(torch.zeros(emb_dim)) if bias else None\n\n    def forward(self, x):\n        input_dtype = x.dtype\n\n        if self.qwen3_compatible:\n            x = x.to(torch.float32)\n\n        variance = x.pow(2).mean(dim=-1, keepdim=True)\n        norm_x = x * torch.rsqrt(variance + self.eps)\n        norm_x = norm_x * self.scale\n\n        if self.shift is not None:\n            norm_x = norm_x + self.shift\n\n        return norm_x.to(input_dtype)\nRMSNorm is computationally more efficient than \\(LayerNorm\\) and is used in many models today such as QWen-3 and LLaMA-3."
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#conclusion",
+    "href": "posts/layernorm-rmsnorm/normalization.html#conclusion",
+    "title": "Normalization in Transformers",
+    "section": "Conclusion",
+    "text": "Conclusion\nNormalization is critical for stable and efficient Transformer training. While LayerNorm remains the standard choice, RMSNorm is increasingly popular in large-scale LLMs for its computational efficiency."
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#further-reading",
+    "href": "posts/layernorm-rmsnorm/normalization.html#further-reading",
+    "title": "Normalization in Transformers",
+    "section": "Further Reading",
+    "text": "Further Reading\n\nRMSNorm: The Root Mean Square Layer Normalization\nLayer Normalization\nAttention is all you need"
+  },
+  {
+    "objectID": "things_i_learned/index.html",
+    "href": "things_i_learned/index.html",
+    "title": "Today I Learned",
+    "section": "",
+    "text": "Serialisation with Msgspec\n\n\n\npython\n\nTIL\n\n\n\nAnother Serializer in Python\n\n\n\n\n\nDec 22, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html",
+    "href": "posts/post-with-code/index.html",
+    "title": "Post With Code",
+    "section": "",
+    "text": "This is a post with executable code."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this blog"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Hi, I’m Mahamadi NIKIEMA",
+    "section": "",
+    "text": "Normalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nDec 25, 2024\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 22, 2024\n\n\nTristan O’Malley\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome To My Blog",
+    "section": "",
+    "text": "This is the first post in a Quarto blog. Welcome!\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+  },
+  {
+    "objectID": "things_i_learned/test/index.html",
+    "href": "things_i_learned/test/index.html",
+    "title": "Serialisation with Msgspec",
+    "section": "",
+    "text": "While Pydantic is well-known for serialization and validation in Python, I recently discovered msgspec, a lightning-fast library that supports encoding and decoding various formats, including JSON, YAML, TOML, and MessagePack."
+  },
+  {
+    "objectID": "things_i_learned/test/index.html#encoding",
+    "href": "things_i_learned/test/index.html#encoding",
+    "title": "Serialisation with Msgspec",
+    "section": "Encoding",
+    "text": "Encoding\nYou can encode Python objects into JSON or MessagePack.\n\nimport msgspec\n\n# Encoding as JSON\njson_data = msgspec.json.encode({\"name\": \"awesome name\"})\nprint(json_data)\n\n# Encode as msgpack\nmsgpack_data = msgspec.msgpack.encode({\"name\": \"awesome name\"})\nprint(msgpack_data)\n\nb'{\"name\":\"awesome name\"}'\nb'\\x81\\xa4name\\xacawesome name'"
+  },
+  {
+    "objectID": "things_i_learned/test/index.html#the-core-msgspec.struct",
+    "href": "things_i_learned/test/index.html#the-core-msgspec.struct",
+    "title": "Serialisation with Msgspec",
+    "section": "The Core: msgspec.Struct",
+    "text": "The Core: msgspec.Struct\nThe core component is the module msgspec.Struct.\nAt the heart of msgspec is the Struct class, which provides structure and type safety for your data models.\n\nDefining a Structured Mode\n\nimport msgspec\nfrom typing import Set\n\n\nclass ConfigStrategy(msgspec.Struct):\n    name: str\n    language: str\n    stop_words: Set[str] = set()\n\n\nspacy_cfg = ConfigStrategy(name=\"spacy\", language=\"french\")\nprint(spacy_cfg)\n\nConfigStrategy(name='spacy', language='french', stop_words=set())\n\n\nEncoding the data\nYou can encode the structured object directly into JSON:\n\nmsgspec.json.encode(spacy_cfg)\n\nb'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}'\n\n\nDecoding the data\nJSON Decoding\nBy default, msgspec does not perform type validation during the decoding:\n\nmsgspec.json.decode(b'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}')\n\n{'name': 'spacy', 'language': 'french', 'stop_words': []}\n\n\nType Validation\nmsgspec makes it easy to decode serialized data into a structured object, complete with type validation:\n\nmsgspec.json.decode(b'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}', type=ConfigStrategy)\n\nConfigStrategy(name='spacy', language='french', stop_words=set())\n\n\nIf you’re looking for a high-performance alternative to libraries like Pydantic, give msgspec a try!"
+  },
+  {
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html",
+    "title": "Scraping the most listened podcast in France, GDIY",
+    "section": "",
+    "text": "The podcast Generation Do It Yourself is one of the most listen in France. I listen this podcast every weekend and I decide to use my programming skill to scrap audio data from the web site. This post will also guide you to download audio from your favorite podcasts."
+  },
+  {
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#prerequisites",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#prerequisites",
+    "title": "Scraping the most listened podcast in France, GDIY",
+    "section": "Prerequisites",
+    "text": "Prerequisites\nBefore we dive into the details, you need to install the prerequisites by running: pip install requests beautifulsoup4 tqdm"
+  },
+  {
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#understanding-the-python-script",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#understanding-the-python-script",
+    "title": "Scraping the most listened podcast in France, GDIY",
+    "section": "Understanding the Python Script",
+    "text": "Understanding the Python Script\nLet’s delve into the Python script that automates the process of downloading podcast episodes. I will introduce you to a class named AudioLoader that is equipped with methods to perform various tasks such as loading, updating, downloading, and processing audio data.\n\nClass Initialization\nThe AudioLoader class initializes with a data_path parameter which is the path to save the downloaded audio files and keep track of loaded episodes. The loaded_episodes set stores the loaded episode names.\nclass AudioLoader(object):\n    def __init__(self, data_path):\n        self.data_path = data_path\n        self.loaded_episodes = self.load_loaded_episodes()\n\n\nLoading and Updating Episode Details\nThe load_loaded_episodes method checks for the existence of a loaded_episodes.json file and creates one if it doesn’t exist, to store the details of loaded episodes.\nThe update_loaded_episodes method updates the loaded_episodes set and JSON file with new episode details.\ndef load_loaded_episodes(self):\n        if not os.path.exists(os.path.join(self.data_path,'loaded_episodes.json')):\n            with open(os.path.join(self.data_path,'loaded_episodes.json'), 'w') as f:\n                json.dump([], f)\n        with open(os.path.join(self.data_path,'loaded_episodes.json'), 'r') as f:\n            return set(json.load(f))\n        \ndef update_loaded_episodes(self, episode_id):\n    self.loaded_episodes.add(episode_id)\n    with open(os.path.join(self.data_path,'loaded_episodes.json'), 'w') as f:\n        json.dump(list(self.loaded_episodes), f)\n\n\nFetching and Processing Data\nThe load_data method fetches all episodes from the podcast’s RSS feed using the requests and BeautifulSoup libraries.\nThe process_data method iterates over all episodes and filters out those with certain phrases in the title (like “[EXTRAIT]”). It also prevents downloading episodes that have already been loaded.\ndef load_data(self, feed_url):\n        page = requests.get(feed_url)\n        soup = BeautifulSoup(page.content, \"xml\")\n        return soup.find_all('item')\n    \ndef process_data(self):\n    all_name = set()\n    audio_info = {}\n    audio_to_skip = [\"[EXTRAIT]\",\"[EXTRACT]\",\"[REDIFF]\"]\n    data = self.load_data(\"https://rss.art19.com/generation-do-it-yourself\")\n    for episode in data:\n        link = episode.find(\"enclosure\")[\"url\"]\n        title = episode.find(\"title\").text\n        episode_id = \" \".join(title.split(\" - \")[:-1]).replace(\"#\", \"\")\n        episode_id = re.sub(r'[%/!@#\\*\\$\\?\\+\\^\\\\\\\\\\\\]', '', episode_id)\n        \n        skip = [skip_audio for skip_audio in audio_to_skip if skip_audio in title]\n        if not skip:\n\n            if episode_id not in self.loaded_episodes:\n                try:\n                    episode_id = self.simplify_name(episode_id)\n                except:\n                    print(title)\n\n                if episode_id in all_name:\n                    episode_id = episode_id+\"-1\"\n                audio_info[episode_id] = title\n                all_name.add(episode_id)\n                self.download_episode(link, episode_id)\n                self.update_loaded_episodes(episode_id)\n    \n    return audio_info\n\n\nDownloading Episodes\nThe download_episode method downloads an episode’s audio file and saves it with a simplified name derived from the title.\ndef download_episode(self, episode_url, audio_name):\n    audio = requests.get(episode_url)\n    with open(os.path.join(self.data_path, audio_name+\".mp3\"), \"wb\") as fp:\n        fp.write(audio.content)\n\n\nSimplifying File Names\nThe simplify_name method simplifies episode names based on certain conditions to create a clean and concise file name for each downloaded audio file.\ndef simplify_name(self, file_name:str):\n    file_name = file_name.strip()\n    if file_name.startswith(\"COVID\"):\n        new_filename = \"-\".join(file_name.split()[:2])\n    elif file_name.lower().startswith(\"hors\"):\n        new_filename = file_name.split()\n        new_filename = \"-\".join(new_filename[:2])\n    elif file_name.startswith(\"Early\"):\n        new_filename = \"-\".join(file_name.split()[:3])\n    else:\n        new_filename = file_name.split()[0]\n    return new_filename"
+  },
+  {
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#conclusion",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#conclusion",
+    "title": "Scraping the most listened podcast in France, GDIY",
+    "section": "Conclusion",
+    "text": "Conclusion\nWith this Python script, you can automatically load and download episodes of the Generation Do It Yourself podcast, saving you time and effort. You can customize the script to work with other podcasts by modifying the RSS feed URL and adjusting the naming conventions in the simplify_name method.\nFeel free to extend this script with more features, such as adding metadata to the audio files."
+  }
+]
