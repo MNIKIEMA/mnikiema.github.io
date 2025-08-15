@@ -480,11 +480,11 @@ y = \frac{x}{\sqrt{\epsilon + \sum_{i=1}^n x_i^2}}\]</span> where <span class="m
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            norm_x <span class="op">=</span> norm_x <span class="op">+</span> <span class="va">self</span>.shift</span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> norm_x.to(input_dtype)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>RMSNorm</code> is computationally more efficient than <span class="math inline">\(LayerNorm\)</span> and is used in many models today such as <code>QWen-3</code> and <code>LLaMA-3</code>.</p>
+<p><code>RMSNorm</code> is computationally more efficient than <code>LayerNorm</code> and is used in many models today such as <code>QWen-3</code> and <code>LLaMA-3</code>.</p>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>Normalization is critical for stable and efficient Transformer training. While LayerNorm remains the standard choice, RMSNorm is increasingly popular in large-scale LLMs for its computational efficiency.</p>
+<p>Normalization is critical for stable and efficient Transformer training. While <code>LayerNorm</code> remains the standard choice, <code>RMSNorm</code> is increasingly popular in large-scale LLMs for its computational efficiency.</p>
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further Reading</h2>

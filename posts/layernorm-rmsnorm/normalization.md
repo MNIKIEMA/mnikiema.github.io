@@ -5,7 +5,7 @@ description: Normalization Methods in Transformers
 author: "Mahamadi NIKIEMA"
 thumbnail-img: profile.jpg
 tags: [Python, LLMs, Deep Learning]
-date:   2025-08-15 21:55:51 +0200
+date:   2025-08-15 14:04:51 +0200
 categories: Deep Learning
 ---
 
@@ -106,12 +106,12 @@ class RMSNorm(nn.Module):
         return norm_x.to(input_dtype)
 ```
 
-``RMSNorm`` is computationally more efficient than $LayerNorm$ and is used in many models today such as `QWen-3` and `LLaMA-3`.
+``RMSNorm`` is computationally more efficient than `LayerNorm` and is used in many models today such as `QWen-3` and `LLaMA-3`.
 
 ## Conclusion
 
 Normalization is critical for stable and efficient Transformer training.
-While LayerNorm remains the standard choice, RMSNorm is increasingly popular in large-scale LLMs for its computational efficiency.
+While `LayerNorm` remains the standard choice, `RMSNorm` is increasingly popular in large-scale LLMs for its computational efficiency.
 
 
 ## Further Reading
