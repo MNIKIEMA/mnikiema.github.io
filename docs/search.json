@@ -1,5 +1,12 @@
 [
   {
+    "objectID": "posts/path_lib/testing.html",
+    "href": "posts/path_lib/testing.html",
+    "title": "Mahamadi NIKIEMA",
+    "section": "",
+    "text": "import os\nfrom pathlib import Path\n\n\ncurrent_dir = os.getcwd()\ncurrent_dir\n\n'/home/mnikiema/OpenSource/mnikiema.github.io/posts/path_lib'\n\n\n\nfp = os.path.join(current_dir, \"text.txt\")\nos.path.isdir(fp)\n\nFalse\n\n\n\ncurrent_dir = Path.cwd()\ncurrent_dir\n\nPosixPath('/home/mnikiema/OpenSource/mnikiema.github.io/posts/path_lib')\n\n\n\nfp = current_dir / \"text.txt\"\nfp.is_dir()\n\nFalse\n\n\n\nfp.parent\n\nPosixPath('/home/mnikiema/OpenSource/mnikiema.github.io/posts/path_lib')\n\n\n\nwith fp.open(\"r\") as f:\n    data = f.read()\n\ndata\n\n'Bonjour'"
+  },
+  {
     "objectID": "posts/layernorm-rmsnorm/normalization.html",
     "href": "posts/layernorm-rmsnorm/normalization.html",
     "title": "Normalization in Transformers",
@@ -74,14 +81,14 @@
     "href": "index.html",
     "title": "Hi, I’m Mahamadi NIKIEMA",
     "section": "",
-    "text": "Normalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nDec 25, 2024\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 22, 2024\n\n\nTristan O’Malley\n\n\n\n\n\nNo matching items"
+    "text": "Normalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 28, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nDec 25, 2024\n\n\nHarlow Malloc\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/welcome/index.html",
     "href": "posts/welcome/index.html",
     "title": "Welcome To My Blog",
     "section": "",
-    "text": "This is the first post in a Quarto blog. Welcome!\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+    "text": "This is the first post of my blog.\nI’ll use this space to share what I’m learning, exploring, and building."
   },
   {
     "objectID": "things_i_learned/test/index.html",
@@ -131,5 +138,12 @@
     "title": "Scraping the most listened podcast in France, GDIY",
     "section": "Conclusion",
     "text": "Conclusion\nWith this Python script, you can automatically load and download episodes of the Generation Do It Yourself podcast, saving you time and effort. You can customize the script to work with other podcasts by modifying the RSS feed URL and adjusting the naming conventions in the simplify_name method.\nFeel free to extend this script with more features, such as adding metadata to the audio files."
+  },
+  {
+    "objectID": "posts/nvidia_grandmaster_playbook/kaggle_playbook.html",
+    "href": "posts/nvidia_grandmaster_playbook/kaggle_playbook.html",
+    "title": "Mahamadi NIKIEMA",
+    "section": "",
+    "text": "When it comes to tabular modeling—whether in Kaggle competitions or real-world projects—two principles form the foundation of success: fast experimentation and careful validation. Everything else builds on these. kaggle grandmasrers playbook\nThe Core Principles\nFast Experimentation: Optimize your workflow for speed. Use GPU acceleration (cuDF, cuML, GPU backends of XGBoost, LightGBM, CatBoost) to scale feature engineering and model training. The more high-quality experiments you run, the faster you discover what works.\nCareful Validation: Reliable validation is non-negotiable. Cross-validation (CV) with the right strategy (KFold, TimeSeriesSplit, GroupKFold) ensures your score is trustworthy and avoids nasty surprises in deployment.\nThe Techniques That Win\nSmarter EDA\nGo beyond missing values and correlations.\nCheck for train-test distribution shifts and temporal patterns in the target.\nWhy it matters: Ignoring these can make models validate well but fail in production.\nBuild Diverse Baselines\nDon’t stop at one baseline—test linear models, GBDTs, neural nets, even SVMs.\nBaselines act as gut checks, reveal leakage, and show which model families fit your data best.\nFeature Generation at Scale\nHidden signals often come from engineered features, not model tweaks.\nWith GPUs, you can generate hundreds or thousands of features (like categorical combinations) without bottlenecks.\nHill Climbing (Ensembling)\nStart with your strongest model, add others iteratively, and keep only what improves validation.\nGPU-powered vectorization makes exploring thousands of combinations feasible.\nStacking\nTrain a second-level model on the outputs of base models.\nEspecially powerful when different models capture different patterns (linear vs nonlinear).\nMulti-level stacks become practical with GPU acceleration.\nPseudo-Labeling\nUse your model to label unlabeled data, then fold it back into training.\nSoft labels reduce noise, boost generalization, and effectively enlarge your dataset.\nExtra Training for the Final Push\nTrain with multiple random seeds and ensemble results.\nRetrain on 100% of the data after hyperparameter tuning.\nThese small tweaks often deliver measurable leaderboard gains.\nWhy It Works\nThis playbook works because it balances speed with rigor. GPUs make it possible to try more ideas in less time, while robust validation ensures those ideas actually hold up. The combination consistently delivers models that don’t just perform well in competitions—they generalize in the real world.\n👉 Whether you’re chasing gold on Kaggle or solving production problems, the formula is the same: experiment fast, validate carefully, and scale smarter with GPUs.\nWould you like me to also make a shorter version (like a LinkedIn post summary) that highlights the key takeaways in a punchy, shareable format?"
   }
 ]

@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Mahamadi NIKIEMA">
-<meta name="dcterms.date" content="2024-12-28">
 
-<title>Welcome To My Blog – Mahamadi NIKIEMA</title>
+<title>kaggle_playbook – Mahamadi NIKIEMA</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -284,38 +282,7 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-body">
-      <h1 class="title">Welcome To My Blog</h1>
-                                <div class="quarto-categories">
-                <div class="quarto-category">news</div>
-              </div>
-                  </div>
-  </div>
-    
-  
-  <div class="quarto-title-meta">
-
-      <div>
-      <div class="quarto-title-meta-heading">Author</div>
-      <div class="quarto-title-meta-contents">
-               <p>Mahamadi NIKIEMA </p>
-            </div>
-    </div>
-      
-      <div>
-      <div class="quarto-title-meta-heading">Published</div>
-      <div class="quarto-title-meta-contents">
-        <p class="date">December 28, 2024</p>
-      </div>
-    </div>
-    
-      
-    </div>
-    
-  
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<header id="title-block-header" class="quarto-title-block"></header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
@@ -326,9 +293,39 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-
-<p>This is the first post of my blog.</p>
-<p>I’ll use this space to share what I’m learning, exploring, and building.</p>
+<p>When it comes to tabular modeling—whether in Kaggle competitions or real-world projects—two principles form the foundation of success: fast experimentation and careful validation. Everything else builds on these. <a href="https://developer.nvidia.com/blog/the-kaggle-grandmasters-playbook-7-battle-tested-modeling-techniques-for-tabular-data/">kaggle grandmasrers playbook</a></p>
+<p>The Core Principles</p>
+<p>Fast Experimentation: Optimize your workflow for speed. Use GPU acceleration (cuDF, cuML, GPU backends of XGBoost, LightGBM, CatBoost) to scale feature engineering and model training. The more high-quality experiments you run, the faster you discover what works.</p>
+<p>Careful Validation: Reliable validation is non-negotiable. Cross-validation (CV) with the right strategy (KFold, TimeSeriesSplit, GroupKFold) ensures your score is trustworthy and avoids nasty surprises in deployment.</p>
+<p>The Techniques That Win</p>
+<p>Smarter EDA</p>
+<p>Go beyond missing values and correlations.</p>
+<p>Check for train-test distribution shifts and temporal patterns in the target.</p>
+<p>Why it matters: Ignoring these can make models validate well but fail in production.</p>
+<p>Build Diverse Baselines</p>
+<p>Don’t stop at one baseline—test linear models, GBDTs, neural nets, even SVMs.</p>
+<p>Baselines act as gut checks, reveal leakage, and show which model families fit your data best.</p>
+<p>Feature Generation at Scale</p>
+<p>Hidden signals often come from engineered features, not model tweaks.</p>
+<p>With GPUs, you can generate hundreds or thousands of features (like categorical combinations) without bottlenecks.</p>
+<p>Hill Climbing (Ensembling)</p>
+<p>Start with your strongest model, add others iteratively, and keep only what improves validation.</p>
+<p>GPU-powered vectorization makes exploring thousands of combinations feasible.</p>
+<p>Stacking</p>
+<p>Train a second-level model on the outputs of base models.</p>
+<p>Especially powerful when different models capture different patterns (linear vs nonlinear).</p>
+<p>Multi-level stacks become practical with GPU acceleration.</p>
+<p>Pseudo-Labeling</p>
+<p>Use your model to label unlabeled data, then fold it back into training.</p>
+<p>Soft labels reduce noise, boost generalization, and effectively enlarge your dataset.</p>
+<p>Extra Training for the Final Push</p>
+<p>Train with multiple random seeds and ensemble results.</p>
+<p>Retrain on 100% of the data after hyperparameter tuning.</p>
+<p>These small tweaks often deliver measurable leaderboard gains.</p>
+<p>Why It Works</p>
+<p>This playbook works because it balances speed with rigor. GPUs make it possible to try more ideas in less time, while robust validation ensures those ideas actually hold up. The combination consistently delivers models that don’t just perform well in competitions—they generalize in the real world.</p>
+<p>👉 Whether you’re chasing gold on Kaggle or solving production problems, the formula is the same: experiment fast, validate carefully, and scale smarter with GPUs.</p>
+<p>Would you like me to also make a shorter version (like a LinkedIn post summary) that highlights the key takeaways in a punchy, shareable format?</p>
 
 
 
