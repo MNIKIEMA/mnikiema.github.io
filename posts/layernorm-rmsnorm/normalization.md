@@ -9,15 +9,17 @@ date:   2025-08-15 14:04:51 +0200
 categories: Deep Learning
 ---
 
+
 ## Introduction
 
 Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:
 
 **Key benefits of normalization:**
-- Prevents overfitting.
-- Improves generalization.
-- Stabilizes training dynamics.
-- Boosts performance on large-scale tasks.
+
+-   Prevents overfitting.
+-   Improves generalization.
+-   Stabilizes training dynamics.
+-   Boosts performance on large-scale tasks.
 
 ## Normalization Methods in Transformers
 

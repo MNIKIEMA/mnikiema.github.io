@@ -4,14 +4,14 @@
     "href": "posts/layernorm-rmsnorm/normalization.html",
     "title": "Normalization in Transformers",
     "section": "",
-    "text": "Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:\nKey benefits of normalization: - Prevents overfitting. - Improves generalization. - Stabilizes training dynamics. - Boosts performance on large-scale tasks."
+    "text": "Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:\nKey benefits of normalization:\n\nPrevents overfitting.\nImproves generalization.\nStabilizes training dynamics.\nBoosts performance on large-scale tasks."
   },
   {
     "objectID": "posts/layernorm-rmsnorm/normalization.html#introduction",
     "href": "posts/layernorm-rmsnorm/normalization.html#introduction",
     "title": "Normalization in Transformers",
     "section": "",
-    "text": "Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:\nKey benefits of normalization: - Prevents overfitting. - Improves generalization. - Stabilizes training dynamics. - Boosts performance on large-scale tasks."
+    "text": "Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:\nKey benefits of normalization:\n\nPrevents overfitting.\nImproves generalization.\nStabilizes training dynamics.\nBoosts performance on large-scale tasks."
   },
   {
     "objectID": "posts/layernorm-rmsnorm/normalization.html#normalization-methods-in-transformers",
