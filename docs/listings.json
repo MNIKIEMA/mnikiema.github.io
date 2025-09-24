@@ -8,12 +8,9 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/nvidia_grandmaster_playbook/kaggle_playbook.html",
-      "/posts/path_lib/testing.html",
       "/posts/layernorm-rmsnorm/normalization.html",
       "/posts/gdiy/2023-08-06-scrap-gdiy.html",
-      "/posts/welcome/index.html",
-      "/posts/post-with-code/index.html"
+      "/posts/welcome/index.html"
     ]
   }
 ]
