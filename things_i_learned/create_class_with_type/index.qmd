@@ -1,0 +1,57 @@
+---
+title: "Classes Are Instances of type"
+author: "Mahamadi NIKIEMA"
+date: "2026-02-21"
+description: "Understanding Python's type and Class Creation"
+categories: [python, TIL]
+---
+
+When using the function `type` on an object, Python will tell us which instance this object belongs to.
+
+```{python}
+x = [1, 2, 3]
+print(type(x))
+```
+
+
+If we apply the `type` method to a class like list, we get:
+
+```{python}
+print(type(list))
+print(type(type(x)))
+```
+
+A class is an instance of `type` and we can create a class from `type`.
+
+`type` can take three arguments:
+
+`type(classname, superclasses, attributes_dict)`
+
+- `classname` is the name of the class
+- `superclasses` is a tuple of the superclasses
+- `attributes_dict` is the dictionary attribute of the class.
+
+```{python}
+class Dog:
+    pass
+
+dog = Dog()
+print(type(dog))
+```
+
+
+The same creation using `type`, passing an attribute `a`, and adding a method `bark` to the class:
+
+
+```{python}
+Dog = type("Dog", (), {"a":1, "bark": lambda self: "woof"})
+d = Dog()
+print(type(d))
+print(d.a)
+print(d.bark())
+```
+
+
+We can access the attribute `a` and call the method `bark`, which was not possible during the first creation of the class.
+
+Even if it is uncommon, we can use `type` to dynamically create classes. The `class` keyword is basically another way to create a class; under the hood, Python uses `type`.
