@@ -95,7 +95,7 @@
     "href": "index.html",
     "title": "Hi, I’m Mahamadi NIKIEMA",
     "section": "",
-    "text": "Normalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 28, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items"
+    "text": "Chat Templates: Structuring LLM Conversations\n\n\n\nbest-practices\n\nLLM\n\n\n\nUnderstanding chat templates for LLMs\n\n\n\n\n\nMar 9, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nNormalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 28, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "things_i_learned/create_class_with_type/index.html",
@@ -173,6 +173,69 @@
     "title": "Normalization in Transformers",
     "section": "Further Reading",
     "text": "Further Reading\n\nRMSNorm: The Root Mean Square Layer Normalization\nLayer Normalization\nAttention is all you need"
+  },
+  {
+    "objectID": "posts/prompt_template/templating.html",
+    "href": "posts/prompt_template/templating.html",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "",
+    "text": "Chat templates are used in chat models such as ChatGPT, Qwen to structure multi-turn conversations."
+  },
+  {
+    "objectID": "posts/prompt_template/templating.html#example",
+    "href": "posts/prompt_template/templating.html#example",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "Example",
+    "text": "Example\nLet’s start with a simple chat:\nchat = [\n{\"role\": \"system\", \"content\": \"You are a helpful assistant.\"},\n{\"role\": \"user\", \"content\": \"What is the capital of France?\"},\n{\"role\": \"assistant\", \"content\": \"Paris is the capital of France.\"},\n]"
+  },
+  {
+    "objectID": "posts/prompt_template/templating.html#applying-a-chat-template",
+    "href": "posts/prompt_template/templating.html#applying-a-chat-template",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "Applying a Chat Template",
+    "text": "Applying a Chat Template\nTo apply a template we can call the method tokenizer.apply_chat_template() like this:\nfrom transformers import AutoTokenizer\nmodel_id = \"LiquidAI/LFM2-350M\"\ntokenizer = AutoTokenizer.from_pretrained(model_id)\ninputs = tokenizer.apply_chat_template(chat, tokenize=False)\nprint(inputs)\nThis produces the following text:\n&lt;|startoftext|&gt;&lt;|im_start|&gt;system\nYou are a helpful assistant.&lt;|im_end|&gt;\n&lt;|im_start|&gt;user\nWhat is the capital of France?&lt;|im_end|&gt;\n&lt;|im_start|&gt;assistant\nParis is the capital of France.&lt;|im_end|&gt;"
+  },
+  {
+    "objectID": "posts/prompt_template/templating.html#how-it-works",
+    "href": "posts/prompt_template/templating.html#how-it-works",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "How it Works",
+    "text": "How it Works\nIt assigns roles such as system, user, assistant. Basically it is as follows:\n\nsystem: The instruction to control the LLM behavior\nuser: The user question to the LLM\nassistant: The LLM response\n\nSome models may support additional roles, such as tool for tool-calling contexts."
+  },
+  {
+    "objectID": "posts/prompt_template/templating.html#under-the-hood",
+    "href": "posts/prompt_template/templating.html#under-the-hood",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "Under the Hood",
+    "text": "Under the Hood\nUnder the hood, the tokenizer uses jinja to handle chat templates. It can be seen in the model repo on HF in the tokenizer_config.json file or chat_template.jinja file.\nHere’s a simple example of what a Jinja-based chat template might look like inside a model:\n{{bos_token}}{% for message in messages %}{{'&lt;|im_start|&gt;' + message['role'] + '\n\n' + message['content'] + '&lt;|im_end|&gt;' + '\n\n'}}{% endfor %}{% if add_generation_prompt %}{{ '&lt;|im_start|&gt;assistant\n\n' }}{% endif %}"
+  },
+  {
+    "objectID": "posts/prompt_template/templating.html#what-if-a-model-doesnt-have-a-chat-template",
+    "href": "posts/prompt_template/templating.html#what-if-a-model-doesnt-have-a-chat-template",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "What If a Model Doesn’t Have a Chat Template?",
+    "text": "What If a Model Doesn’t Have a Chat Template?\nNot every model supports chat formatting. If the model does not have a chat template like openai-community/gpt2, calling the method raises ValueError like this:\nValueError: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating\nIn such cases, you can either:\n\nManually define your own Jinja template, or\nUse a text format template\n\nLearn more about chat_templating"
+  },
+  {
+    "objectID": "posts/prompt_template/templating.html#why-templates-matter",
+    "href": "posts/prompt_template/templating.html#why-templates-matter",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "Why Templates Matter",
+    "text": "Why Templates Matter\nMost chat-focused LLMs are trained with a specific template. Using a different one at inference or fine-tuning time can degrade performance.\nIf your input doesn’t match the format the model was trained on, it might misunderstand the structure of the conversation, confuse roles, or produce weaker responses."
+  },
+  {
+    "objectID": "posts/prompt_template/templating.html#a-quick-experiment",
+    "href": "posts/prompt_template/templating.html#a-quick-experiment",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "A Quick Experiment",
+    "text": "A Quick Experiment\nFor this purpose, Daniel Furman made an experiment and shared some interesting results in this GitHub issue conversation.\nBelow is a table from his results:\n\n\n\nimage\n\n\nIt’s easy to see from the table that using the right template has a big effect on the quality of the generation.\nThat’s why, when fine-tuning or evaluating chat-based models, matching the training-time template is crucial."
+  },
+  {
+    "objectID": "posts/prompt_template/templating.html#conclusion",
+    "href": "posts/prompt_template/templating.html#conclusion",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "Conclusion",
+    "text": "Conclusion\nChat templates are a small but critical detail when working with modern LLMs. Using the correct template when fine-tuning, evaluating, or prompting a model ensures that the model interprets your input as intended and produces better results. When building training pipelines or evaluation harnesses, make template handling a first-class concern, not an afterthought."
   },
   {
     "objectID": "draft/data_collators.html",
