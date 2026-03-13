@@ -1,2 +1,3 @@
 /.quarto/
 /docs/draft
+**/*.quarto_ipynb

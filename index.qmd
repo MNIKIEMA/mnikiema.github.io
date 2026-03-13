@@ -1,14 +1,46 @@
 ---
-title: "Hi, I'm Mahamadi NIKIEMA"
+title: ""
 listing:
+  id: posts-listing
   contents: posts
   sort: "date desc"
   type: default
   categories: true
   sort-ui: false
   filter-ui: false
+  fields: [date, title, author, description, categories]
+  max-items: 3
 page-layout: full
-title-block-banner: true
 ---
 
+```{=html}
+<div class="hero">
+  <h1>Hi, I'm Mahamadi NIKIEMA</h1>
+  <p>ML Engineer writing about machine learning, LLMs, and data engineering.</p>
+  <div class="hero-links">
+    <a href="https://github.com/MNIKIEMA" class="btn btn-outline-primary" target="_blank">
+      <i class="bi bi-github"></i> GitHub
+    </a>
+    <a href="https://x.com/MahamadiN" class="btn btn-outline-primary" target="_blank">
+      <i class="bi bi-twitter-x"></i> Twitter
+    </a>
+    <a href="https://www.linkedin.com/in/mahamadi-nikiema/" class="btn btn-outline-primary" target="_blank">
+      <i class="bi bi-linkedin"></i> LinkedIn
+    </a>
+    <a href="https://huggingface.co/madoss" class="btn btn-outline-primary" target="_blank">
+      🤗 Hugging Face
+    </a>
+  </div>
+</div>
+```
 
+<div class="latest-posts">
+
+## Latest Posts
+
+::: {#posts-listing}
+:::
+
+<a href="blog.html" class="see-all">See all posts →</a>
+
+</div>

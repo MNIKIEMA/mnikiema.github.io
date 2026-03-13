@@ -1,19 +1,39 @@
 ---
-title: "About"
-image: profile.jpg
+title: "Mahamadi NIKIEMA"
+image: "id-image.png"
 about:
-  template: jolla
+  template: trestles
+  image-width: 160px
+  image-shape: round
   links:
-    - icon: twitter
-      text: Twitter
-      href: https://x.com/MahamadiN
+    - icon: github
+      text: GitHub
+      href: https://github.com/MNIKIEMA
     - icon: linkedin
       text: LinkedIn
       href: https://www.linkedin.com/in/mahamadi-nikiema/
-    - icon: github
-      text: Github
-      href: https://github.com/MNIKIEMA
-
+    - icon: twitter
+      text: Twitter
+      href: https://x.com/MahamadiN
+    - icon: ""
+      text: "🤗 Hugging Face"
+      href: https://huggingface.co/madoss
 ---
 
-About this blog
+## About me
+
+I'm an ML Engineer passionate about building intelligent systems that work in practice — not just in notebooks.
+
+I work at the intersection of machine learning, LLMs, and data engineering. My focus is on understanding how models actually behave: how they're trained, fine-tuned, and deployed.
+
+## This blog
+
+This is where I document things I learn. Posts range from deep dives into model internals (like normalization in transformers) to practical engineering (like hybrid search with pgvector).
+
+The **TILs** section captures smaller, sharper insights — the kind of things worth writing down so I don't forget them.
+
+## Interests
+
+- Large language models & fine-tuning
+- Vector search & retrieval systems
+- Data pipelines & engineering

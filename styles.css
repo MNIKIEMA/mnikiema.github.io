@@ -1,1 +1,118 @@
 /* css styles */
+
+/* Hero section */
+.hero {
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+  margin-bottom: 3rem;
+}
+
+.hero h1 {
+  font-size: 2.6rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.15rem;
+  opacity: 0.7;
+  margin-bottom: 2rem;
+  max-width: 500px;
+  margin-inline: auto;
+}
+
+.hero-links {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-links .btn {
+  font-size: 0.9rem;
+  padding: 0.45rem 1.2rem;
+  border-radius: 6px;
+}
+
+/* Latest posts section */
+.latest-posts {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.see-all {
+  display: inline-block;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+/* Readable prose width */
+.quarto-container {
+  margin: 0 auto;
+}
+
+/* Consistent font size for inline code */
+code {
+  font-size: 0.875em;
+}
+
+/* Add subtle left border to code blocks */
+pre.sourceCode {
+  border-left: 3px solid #0066cc;
+  border-radius: 4px;
+}
+
+.quarto-dark pre.sourceCode {
+  border-left-color: #66aaff;
+}
+
+/* Table styling */
+table {
+  font-size: 0.9em;
+  width: 100%;
+}
+
+thead tr th {
+  border-bottom: 2px solid currentColor;
+}
+
+/* Blockquote / callout polish */
+blockquote {
+  border-left: 4px solid #0066cc;
+  padding-left: 1rem;
+  font-style: normal;
+  opacity: 0.85;
+}
+
+.quarto-dark blockquote {
+  border-left-color: #66aaff;
+}
+
+/* Category badge styling */
+.listing-category {
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 2px 8px !important;
+  background-color: #0066cc !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.quarto-dark .listing-category {
+  background-color: #1a5fa8 !important;
+}
+
+/* Listing item spacing */
+.quarto-post {
+  padding-block: 1.5rem;
+}
+
+/* Reduce excessive left padding on listing layout */
+#quarto-content .quarto-listing {
+  padding-left: 0;
+}
