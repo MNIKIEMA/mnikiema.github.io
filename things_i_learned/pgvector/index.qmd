@@ -1,0 +1,307 @@
+---
+title: "Hybrid Search with pgvector and tsvector in PostgreSQL"
+author: "Mahamadi NIKIEMA"
+date: "2026-03-15"
+description: "How to combine dense vector search and full-text search in PostgreSQL using pgvector, tsvector, and Reciprocal Rank Fusion (RRF)"
+draft: false
+categories: [postgresql, pgvector, search, TIL]
+---
+
+## What are pgvector and tsvector?
+
+Neither dense nor sparse searches are sufficient on their own. Dense searches miss exact keywords, and sparse searches miss synonyms. PostgreSQL offers native full-text search with the `tsvector` feature and dense vector search with the `pgvector` extension.
+
+[pgvector](https://github.com/pgvector/pgvector) is a PostgreSQL extension that adds a `vector` column type and similarity search operators. It enables storing and querying dense embeddings (from models like `sentence-transformers`) directly in Postgres.
+
+`tsvector` is a built-in type for sparse textual data used in full-text search.
+
+## Setup
+
+Start a local Postgres instance with pgvector using Docker:
+
+```bash
+docker run --name test-db \
+  -e POSTGRES_USER=user \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=test-db \
+  -p 5433:5432 \
+  -d pgvector/pgvector:pg16
+```
+
+We will use `psycopg2` for direct interaction with PostgreSQL, `polars` for efficient DataFrame operations, and `connectorx`, which Polars relies on for fast database access.
+
+You can install it if needed as follows:
+
+```shell
+pip install polars psycopg2-binary connectorx
+```
+
+The database URI is as follows:
+
+```{python}
+uri = "postgresql://user:password@localhost:5433/test-db"
+```
+
+```{python}
+import polars as pl
+from contextlib import contextmanager
+import psycopg2
+```
+
+We use two approaches throughout this post: `psycopg2` for DDL statements (schema creation, extensions) and ingestion, and `pl.read_database_uri` for all `SELECT` queries. Polars' `write_database()` could handle plain inserts, but it requires `sqlalchemy` as an additional dependency and does not support custom type casts like `::vector` or `to_tsvector()` in the INSERT template, so we use `psycopg2` directly for ingestion.
+
+We define a helper function with a context manager to handle DDL and writes:
+
+```{python}
+
+@contextmanager
+def get_cursor(uri):
+    conn = psycopg2.connect(uri)
+    cur = conn.cursor()
+    try:
+        yield cur
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        cur.close()
+        conn.close()
+
+def execute(query: str, uri: str):
+    with get_cursor(uri=uri) as cursor:
+        return cursor.execute(query)
+```
+
+Then enable the extension for dense embedding:
+
+```{python}
+from functools import partial
+pg_cursor = partial(execute, uri=uri)
+pg_cursor(query="CREATE EXTENSION IF NOT EXISTS vector;")
+```
+
+
+## Schema
+
+Store both dense and sparse representations in the same table:
+
+- `id` for the document
+- the date of creation `created_at`
+- `document` for storing the document
+- `dense_vector` to store the dense embedding
+- `sparse_vector` to store the sparse representation of the document
+
+```{python}
+pg_cursor("""
+DROP TABLE IF EXISTS vector_store;
+CREATE TABLE vector_store (
+  id           bigint GENERATED ALWAYS AS IDENTITY,
+  created_at   timestamp with time zone DEFAULT now(),
+  document     text,
+  dense_vector  vector,
+  sparse_vector tsvector
+);
+""")
+```
+
+## Document ingestion
+
+```{python}
+from psycopg2.extras import execute_values
+
+data = [
+    {"document": "First document",  "dense_vector": [0.1, 0.2, 0.3]},
+    {"document": "Second document", "dense_vector": [0.4, 0.5, 0.6]},
+]
+with get_cursor(uri) as cur:
+    execute_values(
+        cur,
+        """
+        INSERT INTO vector_store (document, dense_vector, sparse_vector)
+        VALUES %s
+        """,
+        [(d["document"], d["dense_vector"], d["document"]) for d in data],
+        template="(%s, %s::vector, to_tsvector(%s))"
+    )
+```
+
+> `to_tsvector` handles the sparse vector conversion - more on this [later](#sparse-search).
+
+Let us check the database elements:
+
+```{python}
+df = pl.read_database_uri(
+    "SELECT id, created_at, document, dense_vector, sparse_vector::text FROM vector_store",
+    uri
+)
+df
+```
+
+## 1. Dense Search
+
+Encode the query with the same model used at ingestion, then use a distance operator and ANN as the default indexing method. It also supports `HNSW`:
+
+| Operator | Distance       |
+| -------- | -------------- |
+| `<->`    | Euclidean (L2) |
+| `<=>`    | Cosine         |
+| `<#>`    | Inner product  |
+
+In SQL, it is as follows:
+
+```sql
+SELECT id, document,
+       dense_vector <=> '[0.1, 0.2, 0.3]' AS distance,
+       rank() OVER (ORDER BY dense_vector <=> '[0.1, 0.2, 0.3]')
+FROM vector_store
+ORDER BY distance
+LIMIT 5;
+```
+
+For simplicity, we are defining the vector, but in practice, we will use embeddings from `sentence-transformers` or OpenAI or Google.
+
+```{python}
+query_vector = [0.1, 0.2, 0.3]
+
+df = pl.read_database_uri(
+    f"SELECT id, document, dense_vector <=> '{query_vector}'::vector AS score FROM vector_store ORDER BY score LIMIT 5",
+    uri
+)
+df
+```
+
+We wrap this into a reusable function:
+
+```{python}
+def dense_search(input: list[float], n: int = 5):
+    sql = f"""
+        SELECT id, document, dense_vector <=> '{input}'::vector AS similarity,
+               rank() OVER (ORDER BY dense_vector <=> '{input}'::vector)
+        FROM vector_store
+        ORDER BY similarity
+        LIMIT {n}
+    """
+    return pl.read_database_uri(sql, uri)
+
+```
+
+## 2. Sparse Search (tsvector / Full-Text) {#sparse-search}
+
+`tsvector` is a built-in PostgreSQL type that stores a pre-processed, normalized bag of words. It is populated at insert time via `to_tsvector()` and queried with `to_tsquery()` or `plainto_tsquery`.
+
+It supports many languages and removes stop words and stems documents automatically.
+
+- Use `to_tsquery` when you want full control: split terms manually with `|` (OR), `&` (AND), or `!` (NOT)
+- Use `plainto_tsquery` when you want PostgreSQL to auto-insert `&` operators between words (simpler, good for plain user input)
+
+During ingestion, we convert the document into a bag-of-words index using `to_tsvector` with a language.
+
+Let's verify how `to_tsvector` tokenized text looks when stored:
+
+- With english text
+
+```{python}
+pl.read_database_uri("SELECT to_tsvector('english', 'my cat is happy I am happy')::text", uri)
+```
+
+- With French text
+
+```{python}
+data = pl.read_database_uri("SELECT to_tsvector('french', 'mon chat est content je suis content')::text", uri)
+data
+```
+
+At query time, `plainto_tsquery` converts the input using `AND` between terms:
+
+```{python}
+data = pl.read_database_uri("SELECT plainto_tsquery('french', 'mon chat est content je suis content')::text query", uri)
+data
+```
+
+As an alternative, the `to_tsquery` function provides full control over operators. We can tokenize the input and perform some preprocessing steps.
+
+In the following example, we use the operator `|` after splitting on whitespace:
+
+```{python}
+input_str = "mon chat est content je suis content".split()
+query = "|".join(input_str)
+data = pl.read_database_uri(f"SELECT to_tsquery('french', '{query}')::text query", uri)
+data
+```
+
+In practice:
+
+- Use `OR` when you want a high recall.
+- Use `AND` when you need all keywords to be present
+
+We can wrap the sparse search into a function as follows:
+
+```{python}
+def sparse_search(input: str, n: int = 5):
+    sql = f"""
+        SELECT id, document, ts_rank_cd(sparse_vector, query) AS similarity,
+               rank() OVER (ORDER BY ts_rank_cd(sparse_vector, query) DESC)
+        FROM vector_store, plainto_tsquery('{input}') query
+        WHERE query @@ sparse_vector
+        ORDER BY similarity DESC
+        LIMIT {n}
+    """
+    return pl.read_database_uri(sql, uri)
+```
+
+```{python}
+sparse_search("Second document")
+```
+
+## 3. Hybrid Search with Reciprocal Rank Fusion (RRF)
+
+RRF merges ranked lists from dense and sparse searches into a single score, without needing to tune weights:
+
+```python
+score_rrf = 1 / (alpha + rank)
+```
+
+Each document's final score is the **sum** of its RRF scores across both lists. Documents appearing in both lists are naturally boosted.
+
+For this, we define a function `rrf_results` to compute RRF results and a function to encapsulate the hybrid search called `hybrid_search`.
+
+```{python}
+def rrf_results(dense_df, sparse_df, alpha=60):
+    dense_df  = dense_df.with_columns((1 / (alpha + pl.col("rank"))).alias("score"))
+    sparse_df = sparse_df.with_columns((1 / (alpha + pl.col("rank"))).alias("score"))
+
+    combined = pl.concat([
+        dense_df.select(["id", "document", "score"]),
+        sparse_df.select(["id", "document", "score"]),
+    ])
+
+    return (
+        combined
+        .group_by("id")
+        .agg(pl.col("score").sum(), pl.col("document").first())
+        .sort("score", descending=True)
+    )
+
+def hybrid_search(query: str, query_vector: list[float], n: int = 5, alpha: int = 60):
+    dense_df  = dense_search(query_vector, n=n)
+    sparse_df = sparse_search(query, n=n)
+    return rrf_results(dense_df, sparse_df, alpha=alpha)
+```
+
+We can then run the hybrid search as follows:
+
+```{python}
+hybrid_search("Second document", [0.4, 0.5, 0.6])
+```
+
+## Key Takeaways
+
+- **Dense search** (pgvector) captures semantic similarity and is good for paraphrases and concepts.
+- **Sparse search** (tsvector) captures exact keyword matches and is good for proper nouns and rare terms.
+- **Hybrid search** (RRF) combines the best of both worlds.
+
+## References
+
+- [PostgreSQL Full-Text Search](https://www.postgresql.org/docs/current/textsearch.html)
+- [pgvector](https://github.com/pgvector/pgvector)

@@ -1,9 +1,11 @@
 [
   {
-    "listing": "/things_i_learned/index.html",
+    "listing": "/index.html",
     "items": [
-      "/things_i_learned/create_class_with_type/index.html",
-      "/things_i_learned/test/index.html"
+      "/posts/prompt_template/templating.html",
+      "/posts/layernorm-rmsnorm/normalization.html",
+      "/posts/gdiy/2023-08-06-scrap-gdiy.html",
+      "/posts/welcome/index.html"
     ]
   },
   {
@@ -16,12 +18,11 @@
     ]
   },
   {
-    "listing": "/index.html",
+    "listing": "/things_i_learned/index.html",
     "items": [
-      "/posts/prompt_template/templating.html",
-      "/posts/layernorm-rmsnorm/normalization.html",
-      "/posts/gdiy/2023-08-06-scrap-gdiy.html",
-      "/posts/welcome/index.html"
+      "/things_i_learned/pgvector/index.html",
+      "/things_i_learned/create_class_with_type/index.html",
+      "/things_i_learned/test/index.html"
     ]
   }
 ]

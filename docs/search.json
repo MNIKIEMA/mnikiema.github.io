@@ -70,46 +70,95 @@
     "text": "Conclusion\nWith this Python script, you can automatically load and download episodes of the Generation Do It Yourself podcast, saving you time and effort. You can customize the script to work with other podcasts by modifying the RSS feed URL and adjusting the naming conventions in the simplify_name method.\nFeel free to extend this script with more features, such as adding metadata to the audio files."
   },
   {
-    "objectID": "things_i_learned/test/index.html",
-    "href": "things_i_learned/test/index.html",
-    "title": "Serialisation with Msgspec",
+    "objectID": "things_i_learned/pgvector/index.html",
+    "href": "things_i_learned/pgvector/index.html",
+    "title": "Hybrid Search with pgvector and tsvector in PostgreSQL",
     "section": "",
-    "text": "While Pydantic is well-known for serialization and validation in Python, I recently discovered msgspec, a lightning-fast library that supports encoding and decoding various formats, including JSON, YAML, TOML, and MessagePack."
+    "text": "Neither dense nor sparse searches are sufficient on their own. Dense searches miss exact keywords, and sparse searches miss synonyms. PostgreSQL offers native full-text search with the tsvector feature and dense vector search with the pgvector extension.\npgvector is a PostgreSQL extension that adds a vector column type and similarity search operators. It enables storing and querying dense embeddings (from models like sentence-transformers) directly in Postgres.\ntsvector is a built-in type for sparse textual data used in full-text search."
   },
   {
-    "objectID": "things_i_learned/test/index.html#encoding",
-    "href": "things_i_learned/test/index.html#encoding",
-    "title": "Serialisation with Msgspec",
-    "section": "Encoding",
-    "text": "Encoding\nYou can encode Python objects into JSON or MessagePack.\n\nimport msgspec\n\n# Encoding as JSON\njson_data = msgspec.json.encode({\"name\": \"awesome name\"})\nprint(json_data)\n\n# Encode as msgpack\nmsgpack_data = msgspec.msgpack.encode({\"name\": \"awesome name\"})\nprint(msgpack_data)\n\nb'{\"name\":\"awesome name\"}'\nb'\\x81\\xa4name\\xacawesome name'"
-  },
-  {
-    "objectID": "things_i_learned/test/index.html#the-core-msgspec.struct",
-    "href": "things_i_learned/test/index.html#the-core-msgspec.struct",
-    "title": "Serialisation with Msgspec",
-    "section": "The Core: msgspec.Struct",
-    "text": "The Core: msgspec.Struct\nThe core component is the module msgspec.Struct.\nAt the heart of msgspec is the Struct class, which provides structure and type safety for your data models.\n\nDefining a Structured Mode\n\nimport msgspec\nfrom typing import Set\n\n\nclass ConfigStrategy(msgspec.Struct):\n    name: str\n    language: str\n    stop_words: Set[str] = set()\n\n\nspacy_cfg = ConfigStrategy(name=\"spacy\", language=\"french\")\nprint(spacy_cfg)\n\nConfigStrategy(name='spacy', language='french', stop_words=set())\n\n\nEncoding the data\nYou can encode the structured object directly into JSON:\n\nmsgspec.json.encode(spacy_cfg)\n\nb'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}'\n\n\nDecoding the data\nJSON Decoding\nBy default, msgspec does not perform type validation during the decoding:\n\nmsgspec.json.decode(b'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}')\n\n{'name': 'spacy', 'language': 'french', 'stop_words': []}\n\n\nType Validation\nmsgspec makes it easy to decode serialized data into a structured object, complete with type validation:\n\nmsgspec.json.decode(b'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}', type=ConfigStrategy)\n\nConfigStrategy(name='spacy', language='french', stop_words=set())\n\n\nIf you’re looking for a high-performance alternative to libraries like Pydantic, give msgspec a try!"
-  },
-  {
-    "objectID": "things_i_learned/index.html",
-    "href": "things_i_learned/index.html",
-    "title": "Today I Learned",
+    "objectID": "things_i_learned/pgvector/index.html#what-are-pgvector-and-tsvector",
+    "href": "things_i_learned/pgvector/index.html#what-are-pgvector-and-tsvector",
+    "title": "Hybrid Search with pgvector and tsvector in PostgreSQL",
     "section": "",
-    "text": "Classes Are Instances of type\n\n\n\npython\n\nTIL\n\n\n\nUnderstanding Python’s type and Class Creation\n\n\n\n\n\nFeb 21, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nSerialisation with Msgspec\n\n\n\npython\n\nTIL\n\n\n\nAnother Serializer in Python\n\n\n\n\n\nDec 22, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items"
+    "text": "Neither dense nor sparse searches are sufficient on their own. Dense searches miss exact keywords, and sparse searches miss synonyms. PostgreSQL offers native full-text search with the tsvector feature and dense vector search with the pgvector extension.\npgvector is a PostgreSQL extension that adds a vector column type and similarity search operators. It enables storing and querying dense embeddings (from models like sentence-transformers) directly in Postgres.\ntsvector is a built-in type for sparse textual data used in full-text search."
   },
   {
-    "objectID": "posts/welcome/index.html",
-    "href": "posts/welcome/index.html",
-    "title": "Welcome To My Blog",
-    "section": "",
-    "text": "This is the first post of my blog.\nI’ll use this space to share what I’m learning, exploring, and building."
+    "objectID": "things_i_learned/pgvector/index.html#setup",
+    "href": "things_i_learned/pgvector/index.html#setup",
+    "title": "Hybrid Search with pgvector and tsvector in PostgreSQL",
+    "section": "Setup",
+    "text": "Setup\nStart a local Postgres instance with pgvector using Docker:\ndocker run --name test-db \\\n  -e POSTGRES_USER=user \\\n  -e POSTGRES_PASSWORD=password \\\n  -e POSTGRES_DB=test-db \\\n  -p 5433:5432 \\\n  -d pgvector/pgvector:pg16\nWe will use psycopg2 for direct interaction with PostgreSQL, polars for efficient DataFrame operations, and connectorx, which Polars relies on for fast database access.\nYou can install it if needed as follows:\npip install polars psycopg2-binary connectorx\nThe database URI is as follows:\n\nuri = \"postgresql://user:password@localhost:5433/test-db\"\n\n\nimport polars as pl\nfrom contextlib import contextmanager\nimport psycopg2\n\nWe use two approaches throughout this post: psycopg2 for DDL statements (schema creation, extensions) and ingestion, and pl.read_database_uri for all SELECT queries. Polars’ write_database() could handle plain inserts, but it requires sqlalchemy as an additional dependency and does not support custom type casts like ::vector or to_tsvector() in the INSERT template, so we use psycopg2 directly for ingestion.\nWe define a helper function with a context manager to handle DDL and writes:\n\n@contextmanager\ndef get_cursor(uri):\n    conn = psycopg2.connect(uri)\n    cur = conn.cursor()\n    try:\n        yield cur\n        conn.commit()\n    except Exception:\n        conn.rollback()\n        raise\n    finally:\n        cur.close()\n        conn.close()\n\ndef execute(query: str, uri: str):\n    with get_cursor(uri=uri) as cursor:\n        return cursor.execute(query)\n\nThen enable the extension for dense embedding:\n\nfrom functools import partial\npg_cursor = partial(execute, uri=uri)\npg_cursor(query=\"CREATE EXTENSION IF NOT EXISTS vector;\")"
   },
   {
-    "objectID": "blog.html",
-    "href": "blog.html",
-    "title": "Blog",
+    "objectID": "things_i_learned/pgvector/index.html#schema",
+    "href": "things_i_learned/pgvector/index.html#schema",
+    "title": "Hybrid Search with pgvector and tsvector in PostgreSQL",
+    "section": "Schema",
+    "text": "Schema\nStore both dense and sparse representations in the same table:\n\nid for the document\nthe date of creation created_at\ndocument for storing the document\ndense_vector to store the dense embedding\nsparse_vector to store the sparse representation of the document\n\n\npg_cursor(\"\"\"\nDROP TABLE IF EXISTS vector_store;\nCREATE TABLE vector_store (\n  id           bigint GENERATED ALWAYS AS IDENTITY,\n  created_at   timestamp with time zone DEFAULT now(),\n  document     text,\n  dense_vector  vector,\n  sparse_vector tsvector\n);\n\"\"\")"
+  },
+  {
+    "objectID": "things_i_learned/pgvector/index.html#document-ingestion",
+    "href": "things_i_learned/pgvector/index.html#document-ingestion",
+    "title": "Hybrid Search with pgvector and tsvector in PostgreSQL",
+    "section": "Document ingestion",
+    "text": "Document ingestion\n\nfrom psycopg2.extras import execute_values\n\ndata = [\n    {\"document\": \"First document\",  \"dense_vector\": [0.1, 0.2, 0.3]},\n    {\"document\": \"Second document\", \"dense_vector\": [0.4, 0.5, 0.6]},\n]\nwith get_cursor(uri) as cur:\n    execute_values(\n        cur,\n        \"\"\"\n        INSERT INTO vector_store (document, dense_vector, sparse_vector)\n        VALUES %s\n        \"\"\",\n        [(d[\"document\"], d[\"dense_vector\"], d[\"document\"]) for d in data],\n        template=\"(%s, %s::vector, to_tsvector(%s))\"\n    )\n\n\nto_tsvector handles the sparse vector conversion - more on this later.\n\nLet us check the database elements:\n\ndf = pl.read_database_uri(\n    \"SELECT id, created_at, document, dense_vector, sparse_vector::text FROM vector_store\",\n    uri\n)\ndf\n\n\nshape: (2, 5)\n\n\n\nid\ncreated_at\ndocument\ndense_vector\nsparse_vector\n\n\ni64\ndatetime[μs, UTC]\nstr\nlist[f32]\nstr\n\n\n\n\n1\n2026-03-16 16:57:54.223357 UTC\n\"First document\"\n[0.1, 0.2, 0.3]\n\"'document':2 'first':1\"\n\n\n2\n2026-03-16 16:57:54.223357 UTC\n\"Second document\"\n[0.4, 0.5, 0.6]\n\"'document':2 'second':1\""
+  },
+  {
+    "objectID": "things_i_learned/pgvector/index.html#dense-search",
+    "href": "things_i_learned/pgvector/index.html#dense-search",
+    "title": "Hybrid Search with pgvector and tsvector in PostgreSQL",
+    "section": "1. Dense Search",
+    "text": "1. Dense Search\nEncode the query with the same model used at ingestion, then use a distance operator and ANN as the default indexing method. It also supports HNSW:\n\n\n\nOperator\nDistance\n\n\n\n\n&lt;-&gt;\nEuclidean (L2)\n\n\n&lt;=&gt;\nCosine\n\n\n&lt;#&gt;\nInner product\n\n\n\nIn SQL, it is as follows:\nSELECT id, document,\n       dense_vector &lt;=&gt; '[0.1, 0.2, 0.3]' AS distance,\n       rank() OVER (ORDER BY dense_vector &lt;=&gt; '[0.1, 0.2, 0.3]')\nFROM vector_store\nORDER BY distance\nLIMIT 5;\nFor simplicity, we are defining the vector, but in practice, we will use embeddings from sentence-transformers or OpenAI or Google.\n\nquery_vector = [0.1, 0.2, 0.3]\n\ndf = pl.read_database_uri(\n    f\"SELECT id, document, dense_vector &lt;=&gt; '{query_vector}'::vector AS score FROM vector_store ORDER BY score LIMIT 5\",\n    uri\n)\ndf\n\n\nshape: (2, 3)\n\n\n\nid\ndocument\nscore\n\n\ni64\nstr\nf64\n\n\n\n\n1\n\"First document\"\n0.0\n\n\n2\n\"Second document\"\n0.025368\n\n\n\n\n\n\nWe wrap this into a reusable function:\n\ndef dense_search(input: list[float], n: int = 5):\n    sql = f\"\"\"\n        SELECT id, document, dense_vector &lt;=&gt; '{input}'::vector AS similarity,\n               rank() OVER (ORDER BY dense_vector &lt;=&gt; '{input}'::vector)\n        FROM vector_store\n        ORDER BY similarity\n        LIMIT {n}\n    \"\"\"\n    return pl.read_database_uri(sql, uri)"
+  },
+  {
+    "objectID": "things_i_learned/pgvector/index.html#sparse-search",
+    "href": "things_i_learned/pgvector/index.html#sparse-search",
+    "title": "Hybrid Search with pgvector and tsvector in PostgreSQL",
+    "section": "2. Sparse Search (tsvector / Full-Text)",
+    "text": "2. Sparse Search (tsvector / Full-Text)\ntsvector is a built-in PostgreSQL type that stores a pre-processed, normalized bag of words. It is populated at insert time via to_tsvector() and queried with to_tsquery() or plainto_tsquery.\nIt supports many languages and removes stop words and stems documents automatically.\n\nUse to_tsquery when you want full control: split terms manually with | (OR), & (AND), or ! (NOT)\nUse plainto_tsquery when you want PostgreSQL to auto-insert & operators between words (simpler, good for plain user input)\n\nDuring ingestion, we convert the document into a bag-of-words index using to_tsvector with a language.\nLet’s verify how to_tsvector tokenized text looks when stored:\n\nWith english text\n\n\npl.read_database_uri(\"SELECT to_tsvector('english', 'my cat is happy I am happy')::text\", uri)\n\n\nshape: (1, 1)\n\n\n\nto_tsvector\n\n\nstr\n\n\n\n\n\"'cat':2 'happi':4,7\"\n\n\n\n\n\n\n\nWith French text\n\n\ndata = pl.read_database_uri(\"SELECT to_tsvector('french', 'mon chat est content je suis content')::text\", uri)\ndata\n\n\nshape: (1, 1)\n\n\n\nto_tsvector\n\n\nstr\n\n\n\n\n\"'chat':2 'content':4,7\"\n\n\n\n\n\n\nAt query time, plainto_tsquery converts the input using AND between terms:\n\ndata = pl.read_database_uri(\"SELECT plainto_tsquery('french', 'mon chat est content je suis content')::text query\", uri)\ndata\n\n\nshape: (1, 1)\n\n\n\nquery\n\n\nstr\n\n\n\n\n\"'chat' & 'content' & 'content'\"\n\n\n\n\n\n\nAs an alternative, the to_tsquery function provides full control over operators. We can tokenize the input and perform some preprocessing steps.\nIn the following example, we use the operator | after splitting on whitespace:\n\ninput_str = \"mon chat est content je suis content\".split()\nquery = \"|\".join(input_str)\ndata = pl.read_database_uri(f\"SELECT to_tsquery('french', '{query}')::text query\", uri)\ndata\n\n\nshape: (1, 1)\n\n\n\nquery\n\n\nstr\n\n\n\n\n\"'chat' | 'content' | 'content'\"\n\n\n\n\n\n\nIn practice:\n\nUse OR when you want a high recall.\nUse AND when you need all keywords to be present\n\nWe can wrap the sparse search into a function as follows:\n\ndef sparse_search(input: str, n: int = 5):\n    sql = f\"\"\"\n        SELECT id, document, ts_rank_cd(sparse_vector, query) AS similarity,\n               rank() OVER (ORDER BY ts_rank_cd(sparse_vector, query) DESC)\n        FROM vector_store, plainto_tsquery('{input}') query\n        WHERE query @@ sparse_vector\n        ORDER BY similarity DESC\n        LIMIT {n}\n    \"\"\"\n    return pl.read_database_uri(sql, uri)\n\n\nsparse_search(\"Second document\")\n\n\nshape: (1, 4)\n\n\n\nid\ndocument\nsimilarity\nrank\n\n\ni64\nstr\nf32\ni64\n\n\n\n\n2\n\"Second document\"\n0.1\n1"
+  },
+  {
+    "objectID": "things_i_learned/pgvector/index.html#hybrid-search-with-reciprocal-rank-fusion-rrf",
+    "href": "things_i_learned/pgvector/index.html#hybrid-search-with-reciprocal-rank-fusion-rrf",
+    "title": "Hybrid Search with pgvector and tsvector in PostgreSQL",
+    "section": "3. Hybrid Search with Reciprocal Rank Fusion (RRF)",
+    "text": "3. Hybrid Search with Reciprocal Rank Fusion (RRF)\nRRF merges ranked lists from dense and sparse searches into a single score, without needing to tune weights:\nscore_rrf = 1 / (alpha + rank)\nEach document’s final score is the sum of its RRF scores across both lists. Documents appearing in both lists are naturally boosted.\nFor this, we define a function rrf_results to compute RRF results and a function to encapsulate the hybrid search called hybrid_search.\n\ndef rrf_results(dense_df, sparse_df, alpha=60):\n    dense_df  = dense_df.with_columns((1 / (alpha + pl.col(\"rank\"))).alias(\"score\"))\n    sparse_df = sparse_df.with_columns((1 / (alpha + pl.col(\"rank\"))).alias(\"score\"))\n\n    combined = pl.concat([\n        dense_df.select([\"id\", \"document\", \"score\"]),\n        sparse_df.select([\"id\", \"document\", \"score\"]),\n    ])\n\n    return (\n        combined\n        .group_by(\"id\")\n        .agg(pl.col(\"score\").sum(), pl.col(\"document\").first())\n        .sort(\"score\", descending=True)\n    )\n\ndef hybrid_search(query: str, query_vector: list[float], n: int = 5, alpha: int = 60):\n    dense_df  = dense_search(query_vector, n=n)\n    sparse_df = sparse_search(query, n=n)\n    return rrf_results(dense_df, sparse_df, alpha=alpha)\n\nWe can then run the hybrid search as follows:\n\nhybrid_search(\"Second document\", [0.4, 0.5, 0.6])\n\n\nshape: (2, 3)\n\n\n\nid\nscore\ndocument\n\n\ni64\nf64\nstr\n\n\n\n\n2\n0.032787\n\"Second document\"\n\n\n1\n0.016129\n\"First document\""
+  },
+  {
+    "objectID": "things_i_learned/pgvector/index.html#key-takeaways",
+    "href": "things_i_learned/pgvector/index.html#key-takeaways",
+    "title": "Hybrid Search with pgvector and tsvector in PostgreSQL",
+    "section": "Key Takeaways",
+    "text": "Key Takeaways\n\nDense search (pgvector) captures semantic similarity and is good for paraphrases and concepts.\nSparse search (tsvector) captures exact keyword matches and is good for proper nouns and rare terms.\nHybrid search (RRF) combines the best of both worlds."
+  },
+  {
+    "objectID": "things_i_learned/pgvector/index.html#references",
+    "href": "things_i_learned/pgvector/index.html#references",
+    "title": "Hybrid Search with pgvector and tsvector in PostgreSQL",
+    "section": "References",
+    "text": "References\n\nPostgreSQL Full-Text Search\npgvector"
+  },
+  {
+    "objectID": "things_i_learned/create_class_with_type/index.html",
+    "href": "things_i_learned/create_class_with_type/index.html",
+    "title": "Classes Are Instances of type",
     "section": "",
-    "text": "Chat Templates: Structuring LLM Conversations\n\n\n\nbest-practices\n\nLLM\n\n\n\nUnderstanding chat templates for LLMs\n\n\n\n\n\nMar 9, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nNormalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 28, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items"
+    "text": "When using the function type on an object, Python will tell us which instance this object belongs to.\n\nx = [1, 2, 3]\nprint(type(x))\n\n&lt;class 'list'&gt;\n\n\nIf we apply the type method to a class like list, we get:\n\nprint(type(list))\nprint(type(type(x)))\n\n&lt;class 'type'&gt;\n&lt;class 'type'&gt;\n\n\nA class is an instance of type and we can create a class from type.\ntype can take three arguments:\ntype(classname, superclasses, attributes_dict)\n\nclassname is the name of the class\nsuperclasses is a tuple of the superclasses\nattributes_dict is the dictionary attribute of the class.\n\n\nclass Dog:\n    pass\n\ndog = Dog()\nprint(type(dog))\n\n&lt;class '__main__.Dog'&gt;\n\n\nThe same creation using type, passing an attribute a, and adding a method bark to the class:\n\nDog = type(\"Dog\", (), {\"a\":1, \"bark\": lambda self: \"woof\"})\nd = Dog()\nprint(type(d))\nprint(d.a)\nprint(d.bark())\n\n&lt;class '__main__.Dog'&gt;\n1\nwoof\n\n\nWe can access the attribute a and call the method bark, which was not possible during the first creation of the class.\nEven if it is uncommon, we can use type to dynamically create classes. The class keyword is basically another way to create a class; under the hood, Python uses type."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Hi, I'm Mahamadi NIKIEMA",
+    "section": "",
+    "text": "ML Engineer writing about machine learning, LLMs, and data engineering.\n  \n    \n       GitHub\n    \n    \n       Twitter\n    \n    \n       LinkedIn\n    \n    \n      🤗 Hugging Face"
+  },
+  {
+    "objectID": "index.html#latest-posts",
+    "href": "index.html#latest-posts",
+    "title": "Hi, I'm Mahamadi NIKIEMA",
+    "section": "Latest Posts",
+    "text": "Latest Posts\n\n\n\n\n\nChat Templates: Structuring LLM Conversations\n\n\n\nbest-practices\n\nLLM\n\n\n\nUnderstanding chat templates for LLMs\n\n\n\n\n\nMar 9, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nNormalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items\n\nSee all posts →"
   },
   {
     "objectID": "about.html",
@@ -140,25 +189,46 @@
     "text": "Interests\n\nLarge language models & fine-tuning\nVector search & retrieval systems\nData pipelines & engineering"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Hi, I'm Mahamadi NIKIEMA",
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "Blog",
     "section": "",
-    "text": "ML Engineer writing about machine learning, LLMs, and data engineering.\n  \n    \n       GitHub\n    \n    \n       Twitter\n    \n    \n       LinkedIn\n    \n    \n      🤗 Hugging Face"
+    "text": "Chat Templates: Structuring LLM Conversations\n\n\n\nbest-practices\n\nLLM\n\n\n\nUnderstanding chat templates for LLMs\n\n\n\n\n\nMar 9, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nNormalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 28, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "index.html#latest-posts",
-    "href": "index.html#latest-posts",
-    "title": "Hi, I'm Mahamadi NIKIEMA",
-    "section": "Latest Posts",
-    "text": "Latest Posts\n\n\n\n\n\nChat Templates: Structuring LLM Conversations\n\n\n\nbest-practices\n\nLLM\n\n\n\nUnderstanding chat templates for LLMs\n\n\n\n\n\nMar 9, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nNormalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items\n\nSee all posts →"
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome To My Blog",
+    "section": "",
+    "text": "This is the first post of my blog.\nI’ll use this space to share what I’m learning, exploring, and building."
   },
   {
-    "objectID": "things_i_learned/create_class_with_type/index.html",
-    "href": "things_i_learned/create_class_with_type/index.html",
-    "title": "Classes Are Instances of type",
+    "objectID": "things_i_learned/index.html",
+    "href": "things_i_learned/index.html",
+    "title": "Today I Learned",
     "section": "",
-    "text": "When using the function type on an object, Python will tell us which instance this object belongs to.\n\nx = [1, 2, 3]\nprint(type(x))\n\n&lt;class 'list'&gt;\n\n\nIf we apply the type method to a class like list, we get:\n\nprint(type(list))\nprint(type(type(x)))\n\n&lt;class 'type'&gt;\n&lt;class 'type'&gt;\n\n\nA class is an instance of type and we can create a class from type.\ntype can take three arguments:\ntype(classname, superclasses, attributes_dict)\n\nclassname is the name of the class\nsuperclasses is a tuple of the superclasses\nattributes_dict is the dictionary attribute of the class.\n\n\nclass Dog:\n    pass\n\ndog = Dog()\nprint(type(dog))\n\n&lt;class '__main__.Dog'&gt;\n\n\nThe same creation using type, passing an attribute a, and adding a method bark to the class:\n\nDog = type(\"Dog\", (), {\"a\":1, \"bark\": lambda self: \"woof\"})\nd = Dog()\nprint(type(d))\nprint(d.a)\nprint(d.bark())\n\n&lt;class '__main__.Dog'&gt;\n1\nwoof\n\n\nWe can access the attribute a and call the method bark, which was not possible during the first creation of the class.\nEven if it is uncommon, we can use type to dynamically create classes. The class keyword is basically another way to create a class; under the hood, Python uses type."
+    "text": "Hybrid Search with pgvector and tsvector in PostgreSQL\n\n\n\npostgresql\n\npgvector\n\nsearch\n\nTIL\n\n\n\nHow to combine dense vector search and full-text search in PostgreSQL using pgvector, tsvector, and Reciprocal Rank Fusion (RRF)\n\n\n\n\n\nMar 15, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nClasses Are Instances of type\n\n\n\npython\n\nTIL\n\n\n\nUnderstanding Python’s type and Class Creation\n\n\n\n\n\nFeb 21, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nSerialisation with Msgspec\n\n\n\npython\n\nTIL\n\n\n\nAnother Serializer in Python\n\n\n\n\n\nDec 22, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "things_i_learned/test/index.html",
+    "href": "things_i_learned/test/index.html",
+    "title": "Serialisation with Msgspec",
+    "section": "",
+    "text": "While Pydantic is well-known for serialization and validation in Python, I recently discovered msgspec, a lightning-fast library that supports encoding and decoding various formats, including JSON, YAML, TOML, and MessagePack."
+  },
+  {
+    "objectID": "things_i_learned/test/index.html#encoding",
+    "href": "things_i_learned/test/index.html#encoding",
+    "title": "Serialisation with Msgspec",
+    "section": "Encoding",
+    "text": "Encoding\nYou can encode Python objects into JSON or MessagePack.\n\nimport msgspec\n\n# Encoding as JSON\njson_data = msgspec.json.encode({\"name\": \"awesome name\"})\nprint(json_data)\n\n# Encode as msgpack\nmsgpack_data = msgspec.msgpack.encode({\"name\": \"awesome name\"})\nprint(msgpack_data)\n\nb'{\"name\":\"awesome name\"}'\nb'\\x81\\xa4name\\xacawesome name'"
+  },
+  {
+    "objectID": "things_i_learned/test/index.html#the-core-msgspec.struct",
+    "href": "things_i_learned/test/index.html#the-core-msgspec.struct",
+    "title": "Serialisation with Msgspec",
+    "section": "The Core: msgspec.Struct",
+    "text": "The Core: msgspec.Struct\nThe core component is the module msgspec.Struct.\nAt the heart of msgspec is the Struct class, which provides structure and type safety for your data models.\n\nDefining a Structured Mode\n\nimport msgspec\nfrom typing import Set\n\n\nclass ConfigStrategy(msgspec.Struct):\n    name: str\n    language: str\n    stop_words: Set[str] = set()\n\n\nspacy_cfg = ConfigStrategy(name=\"spacy\", language=\"french\")\nprint(spacy_cfg)\n\nConfigStrategy(name='spacy', language='french', stop_words=set())\n\n\nEncoding the data\nYou can encode the structured object directly into JSON:\n\nmsgspec.json.encode(spacy_cfg)\n\nb'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}'\n\n\nDecoding the data\nJSON Decoding\nBy default, msgspec does not perform type validation during the decoding:\n\nmsgspec.json.decode(b'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}')\n\n{'name': 'spacy', 'language': 'french', 'stop_words': []}\n\n\nType Validation\nmsgspec makes it easy to decode serialized data into a structured object, complete with type validation:\n\nmsgspec.json.decode(b'{\"name\":\"spacy\",\"language\":\"french\",\"stop_words\":[]}', type=ConfigStrategy)\n\nConfigStrategy(name='spacy', language='french', stop_words=set())\n\n\nIf you’re looking for a high-performance alternative to libraries like Pydantic, give msgspec a try!"
   },
   {
     "objectID": "posts/layernorm-rmsnorm/normalization.html",
