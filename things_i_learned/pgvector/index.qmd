@@ -1,7 +1,7 @@
 ---
 title: "Hybrid Search with pgvector and tsvector in PostgreSQL"
 author: "Mahamadi NIKIEMA"
-date: "2026-03-15"
+date: "2026-03-16"
 description: "How to combine dense vector search and full-text search in PostgreSQL using pgvector, tsvector, and Reciprocal Rank Fusion (RRF)"
 draft: false
 categories: [postgresql, pgvector, search, TIL]

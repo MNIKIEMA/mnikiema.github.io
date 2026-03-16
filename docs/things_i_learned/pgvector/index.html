@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Mahamadi NIKIEMA">
-<meta name="dcterms.date" content="2026-03-15">
+<meta name="dcterms.date" content="2026-03-16">
 <meta name="description" content="How to combine dense vector search and full-text search in PostgreSQL using pgvector, tsvector, and Reciprocal Rank Fusion (RRF)">
 
 <title>Hybrid Search with pgvector and tsvector in PostgreSQL – Mahamadi NIKIEMA</title>
@@ -370,7 +370,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 15, 2026</p>
+      <p class="date">March 16, 2026</p>
     </div>
   </div>
   
@@ -401,17 +401,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>You can install it if needed as follows:</p>
 <pre class="shell"><code>pip install polars psycopg2-binary connectorx</code></pre>
 <p>The database URI is as follows:</p>
-<div id="606e8e70" class="cell" data-execution_count="1">
+<div id="dfe9d639" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>uri <span class="op">=</span> <span class="st">"postgresql://user:password@localhost:5433/test-db"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="c5d73d46" class="cell" data-execution_count="2">
+<div id="4fe9541f" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> contextlib <span class="im">import</span> contextmanager</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> psycopg2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We use two approaches throughout this post: <code>psycopg2</code> for DDL statements (schema creation, extensions) and ingestion, and <code>pl.read_database_uri</code> for all <code>SELECT</code> queries. Polars’ <code>write_database()</code> could handle plain inserts, but it requires <code>sqlalchemy</code> as an additional dependency and does not support custom type casts like <code>::vector</code> or <code>to_tsvector()</code> in the INSERT template, so we use <code>psycopg2</code> directly for ingestion.</p>
 <p>We define a helper function with a context manager to handle DDL and writes:</p>
-<div id="5177a265" class="cell" data-execution_count="3">
+<div id="d5a8111f" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@contextmanager</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_cursor(uri):</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    conn <span class="op">=</span> psycopg2.<span class="ex">connect</span>(uri)</span>
@@ -431,7 +431,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> cursor.execute(query)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Then enable the extension for dense embedding:</p>
-<div id="0978da95" class="cell" data-execution_count="4">
+<div id="a8f5761d" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> functools <span class="im">import</span> partial</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>pg_cursor <span class="op">=</span> partial(execute, uri<span class="op">=</span>uri)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>pg_cursor(query<span class="op">=</span><span class="st">"CREATE EXTENSION IF NOT EXISTS vector;"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -447,7 +447,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>dense_vector</code> to store the dense embedding</li>
 <li><code>sparse_vector</code> to store the sparse representation of the document</li>
 </ul>
-<div id="cb16c6cf" class="cell" data-execution_count="5">
+<div id="ebb52741" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pg_cursor(<span class="st">"""</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="st">DROP TABLE IF EXISTS vector_store;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st">CREATE TABLE vector_store (</span></span>
@@ -462,7 +462,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="document-ingestion" class="level2">
 <h2 class="anchored" data-anchor-id="document-ingestion">Document ingestion</h2>
-<div id="5f1464de" class="cell" data-execution_count="6">
+<div id="91aa8084" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> psycopg2.extras <span class="im">import</span> execute_values</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> [</span>
@@ -484,7 +484,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><code>to_tsvector</code> handles the sparse vector conversion - more on this <a href="#sparse-search">later</a>.</p>
 </blockquote>
 <p>Let us check the database elements:</p>
-<div id="62485ef7" class="cell" data-execution_count="7">
+<div id="70b81685" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pl.read_database_uri(</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SELECT id, created_at, document, dense_vector, sparse_vector::text FROM vector_store"</span>,</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    uri</span>
@@ -519,14 +519,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td>2026-03-16 16:57:54.223357 UTC</td>
+<td>2026-03-16 17:05:18.862610 UTC</td>
 <td>"First document"</td>
 <td>[0.1, 0.2, 0.3]</td>
 <td>"'document':2 'first':1"</td>
 </tr>
 <tr class="even">
 <td>2</td>
-<td>2026-03-16 16:57:54.223357 UTC</td>
+<td>2026-03-16 17:05:18.862610 UTC</td>
 <td>"Second document"</td>
 <td>[0.4, 0.5, 0.6]</td>
 <td>"'document':2 'second':1"</td>
@@ -570,7 +570,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> distance</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">LIMIT</span> <span class="dv">5</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For simplicity, we are defining the vector, but in practice, we will use embeddings from <code>sentence-transformers</code> or OpenAI or Google.</p>
-<div id="363b6897" class="cell" data-execution_count="8">
+<div id="f593932c" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>query_vector <span class="op">=</span> [<span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>]</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pl.read_database_uri(</span>
@@ -617,7 +617,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>We wrap this into a reusable function:</p>
-<div id="06c43772" class="cell" data-execution_count="9">
+<div id="6ea3f174" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dense_search(<span class="bu">input</span>: <span class="bu">list</span>[<span class="bu">float</span>], n: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5</span>):</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    sql <span class="op">=</span> <span class="ss">f"""</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ss">        SELECT id, document, dense_vector &lt;=&gt; '</span><span class="sc">{</span><span class="bu">input</span><span class="sc">}</span><span class="ss">'::vector AS similarity,</span></span>
@@ -642,7 +642,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li>With english text</li>
 </ul>
-<div id="b60578b8" class="cell" data-execution_count="10">
+<div id="1867df22" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pl.read_database_uri(<span class="st">"SELECT to_tsvector('english', 'my cat is happy I am happy')::text"</span>, uri)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="10">
 <div><style>
@@ -674,7 +674,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li>With French text</li>
 </ul>
-<div id="5137610a" class="cell" data-execution_count="11">
+<div id="c695f57a" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pl.read_database_uri(<span class="st">"SELECT to_tsvector('french', 'mon chat est content je suis content')::text"</span>, uri)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="11">
@@ -705,7 +705,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>At query time, <code>plainto_tsquery</code> converts the input using <code>AND</code> between terms:</p>
-<div id="1c03a454" class="cell" data-execution_count="12">
+<div id="683948be" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pl.read_database_uri(<span class="st">"SELECT plainto_tsquery('french', 'mon chat est content je suis content')::text query"</span>, uri)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="12">
@@ -737,7 +737,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>As an alternative, the <code>to_tsquery</code> function provides full control over operators. We can tokenize the input and perform some preprocessing steps.</p>
 <p>In the following example, we use the operator <code>|</code> after splitting on whitespace:</p>
-<div id="c345d23b" class="cell" data-execution_count="13">
+<div id="1d1d9282" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>input_str <span class="op">=</span> <span class="st">"mon chat est content je suis content"</span>.split()</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>query <span class="op">=</span> <span class="st">"|"</span>.join(input_str)</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pl.read_database_uri(<span class="ss">f"SELECT to_tsquery('french', '</span><span class="sc">{</span>query<span class="sc">}</span><span class="ss">')::text query"</span>, uri)</span>
@@ -775,7 +775,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Use <code>AND</code> when you need all keywords to be present</li>
 </ul>
 <p>We can wrap the sparse search into a function as follows:</p>
-<div id="f1ad4c43" class="cell" data-execution_count="14">
+<div id="69cc50f1" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sparse_search(<span class="bu">input</span>: <span class="bu">str</span>, n: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5</span>):</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    sql <span class="op">=</span> <span class="ss">f"""</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ss">        SELECT id, document, ts_rank_cd(sparse_vector, query) AS similarity,</span></span>
@@ -787,7 +787,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="ss">    """</span></span>
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pl.read_database_uri(sql, uri)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="1a6f78ea" class="cell" data-execution_count="15">
+<div id="dbf8a0bc" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>sparse_search(<span class="st">"Second document"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
 <div><style>
@@ -832,7 +832,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>score_rrf <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> (alpha <span class="op">+</span> rank)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Each document’s final score is the <strong>sum</strong> of its RRF scores across both lists. Documents appearing in both lists are naturally boosted.</p>
 <p>For this, we define a function <code>rrf_results</code> to compute RRF results and a function to encapsulate the hybrid search called <code>hybrid_search</code>.</p>
-<div id="139f733c" class="cell" data-execution_count="16">
+<div id="3211bb49" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rrf_results(dense_df, sparse_df, alpha<span class="op">=</span><span class="dv">60</span>):</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    dense_df  <span class="op">=</span> dense_df.with_columns((<span class="dv">1</span> <span class="op">/</span> (alpha <span class="op">+</span> pl.col(<span class="st">"rank"</span>))).alias(<span class="st">"score"</span>))</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    sparse_df <span class="op">=</span> sparse_df.with_columns((<span class="dv">1</span> <span class="op">/</span> (alpha <span class="op">+</span> pl.col(<span class="st">"rank"</span>))).alias(<span class="st">"score"</span>))</span>
@@ -855,7 +855,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rrf_results(dense_df, sparse_df, alpha<span class="op">=</span>alpha)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can then run the hybrid search as follows:</p>
-<div id="91573927" class="cell" data-execution_count="17">
+<div id="feed1aca" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>hybrid_search(<span class="st">"Second document"</span>, [<span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
 <div><style>
