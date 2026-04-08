@@ -140,25 +140,60 @@
     "text": "References\n\nPostgreSQL Full-Text Search\npgvector"
   },
   {
-    "objectID": "things_i_learned/create_class_with_type/index.html",
-    "href": "things_i_learned/create_class_with_type/index.html",
-    "title": "Classes Are Instances of type",
+    "objectID": "things_i_learned/hf_trainer_compatible_model/index.html",
+    "href": "things_i_learned/hf_trainer_compatible_model/index.html",
+    "title": "Making a Custom Model Compatible with HuggingFace Trainer",
     "section": "",
-    "text": "When using the function type on an object, Python will tell us which instance this object belongs to.\n\nx = [1, 2, 3]\nprint(type(x))\n\n&lt;class 'list'&gt;\n\n\nIf we apply the type method to a class like list, we get:\n\nprint(type(list))\nprint(type(type(x)))\n\n&lt;class 'type'&gt;\n&lt;class 'type'&gt;\n\n\nA class is an instance of type and we can create a class from type.\ntype can take three arguments:\ntype(classname, superclasses, attributes_dict)\n\nclassname is the name of the class\nsuperclasses is a tuple of the superclasses\nattributes_dict is the dictionary attribute of the class.\n\n\nclass Dog:\n    pass\n\ndog = Dog()\nprint(type(dog))\n\n&lt;class '__main__.Dog'&gt;\n\n\nThe same creation using type, passing an attribute a, and adding a method bark to the class:\n\nDog = type(\"Dog\", (), {\"a\":1, \"bark\": lambda self: \"woof\"})\nd = Dog()\nprint(type(d))\nprint(d.a)\nprint(d.bark())\n\n&lt;class '__main__.Dog'&gt;\n1\nwoof\n\n\nWe can access the attribute a and call the method bark, which was not possible during the first creation of the class.\nEven if it is uncommon, we can use type to dynamically create classes. The class keyword is basically another way to create a class; under the hood, Python uses type."
+    "text": "Trainer only needs one thing from your model: forward() must return an object with a .loss attribute when labels are provided. Everything else (optimizer, scheduler, gradient accumulation) is handled for you."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Hi, I'm Mahamadi NIKIEMA",
+    "objectID": "things_i_learned/hf_trainer_compatible_model/index.html#the-contract-hf-trainer-expects",
+    "href": "things_i_learned/hf_trainer_compatible_model/index.html#the-contract-hf-trainer-expects",
+    "title": "Making a Custom Model Compatible with HuggingFace Trainer",
     "section": "",
-    "text": "ML Engineer writing about machine learning, LLMs, and data engineering.\n  \n    \n       GitHub\n    \n    \n       Twitter\n    \n    \n       LinkedIn\n    \n    \n      🤗 Hugging Face"
+    "text": "Trainer only needs one thing from your model: forward() must return an object with a .loss attribute when labels are provided. Everything else (optimizer, scheduler, gradient accumulation) is handled for you."
   },
   {
-    "objectID": "index.html#latest-posts",
-    "href": "index.html#latest-posts",
-    "title": "Hi, I'm Mahamadi NIKIEMA",
-    "section": "Latest Posts",
-    "text": "Latest Posts\n\n\n\n\n\nChat Templates: Structuring LLM Conversations\n\n\n\nbest-practices\n\nLLM\n\n\n\nUnderstanding chat templates for LLMs\n\n\n\n\n\nMar 9, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nNormalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items\n\nSee all posts →"
+    "objectID": "things_i_learned/hf_trainer_compatible_model/index.html#wrap-model-loss-in-one-nn.module",
+    "href": "things_i_learned/hf_trainer_compatible_model/index.html#wrap-model-loss-in-one-nn.module",
+    "title": "Making a Custom Model Compatible with HuggingFace Trainer",
+    "section": "1. Wrap model + loss in one nn.Module",
+    "text": "1. Wrap model + loss in one nn.Module\nUse ModelOutput (a dataclass from transformers) as the return type because Trainer knows how to unpack it.\nLet us define two classes:\n\nOutput with two attributes: loss, required by the Trainer, and predictions to store predictions\nA simple linear regression with 10 features called SimpleModel\n\nimport torch\nimport torch.nn as nn\nfrom transformers.modeling_outputs import ModelOutput\nfrom dataclasses import dataclass\nfrom typing import Optional\n\n\n@dataclass\nclass Output(ModelOutput):\n    loss: Optional[torch.FloatTensor] = None\n    predictions: Optional[torch.FloatTensor] = None\n\n\nclass SimpleModel(nn.Module):\n    def __init__(self,):\n        super().__init__()\n        self.simple_layer = nn.Linear(in_features=10, out_features=1)\n\n    def forward(self, x: torch.Tensor, labels=None):\n        out = self.simple_layer(x)\n        loss = None\n        if labels is not None:\n            loss = torch.nn.functional.mse_loss(out, labels.float())\n        return Output(loss=loss, predictions=out)"
+  },
+  {
+    "objectID": "things_i_learned/hf_trainer_compatible_model/index.html#format-the-dataset-with-matching-column-names",
+    "href": "things_i_learned/hf_trainer_compatible_model/index.html#format-the-dataset-with-matching-column-names",
+    "title": "Making a Custom Model Compatible with HuggingFace Trainer",
+    "section": "2. Format the dataset with matching column names",
+    "text": "2. Format the dataset with matching column names\nThe dataset column names must exactly match the argument names of forward().\nIn our case, forward() expects x and labels, and we use torch.rand to generate uniformly distributed data as follows:\n\nfrom torch.utils.data import Dataset\n\nclass SimpleDataset(Dataset):\n    def __init__(self, n=100):\n        self.x = torch.rand(n, 10)\n        self.labels = torch.rand(n, 1)\n\n    def __len__(self):\n        return len(self.x)\n\n    def __getitem__(self, idx):\n        return {\"x\": self.x[idx], \"labels\": self.labels[idx]}"
+  },
+  {
+    "objectID": "things_i_learned/hf_trainer_compatible_model/index.html#putting-it-all-together",
+    "href": "things_i_learned/hf_trainer_compatible_model/index.html#putting-it-all-together",
+    "title": "Making a Custom Model Compatible with HuggingFace Trainer",
+    "section": "3. Putting it all together",
+    "text": "3. Putting it all together\nWe can pass the model and the dataset directly to the trainer for this simple case; no collator is needed.\nfrom transformers import Trainer, TrainingArguments\n\ntrain_loader = SimpleDataset()\nsimple_model = SimpleModel()\n\ntrainer = Trainer(\n    model=simple_model,\n    args=TrainingArguments(\n        output_dir=\"./output\",\n        per_device_train_batch_size=2,\n        num_train_epochs=2,\n        learning_rate=2e-5,\n    ),\n    train_dataset=train_loader,\n)\n\ntrainer.train()"
+  },
+  {
+    "objectID": "things_i_learned/hf_trainer_compatible_model/index.html#key-takeaways",
+    "href": "things_i_learned/hf_trainer_compatible_model/index.html#key-takeaways",
+    "title": "Making a Custom Model Compatible with HuggingFace Trainer",
+    "section": "Key takeaways",
+    "text": "Key takeaways\n\n\n\n\n\n\n\nWhat\nWhy\n\n\n\n\nReturn ModelOutput with .loss\nTrainer checks for this attribute in the backward pass\n\n\nColumn names = forward arg names\nTrainer unpacks the batch into forward"
+  },
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome To My Blog",
+    "section": "",
+    "text": "This is the first post of my blog.\nI’ll use this space to share what I’m learning, exploring, and building."
+  },
+  {
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "Blog",
+    "section": "",
+    "text": "Chat Templates: Structuring LLM Conversations\n\n\n\nbest-practices\n\nLLM\n\n\n\nUnderstanding chat templates for LLMs\n\n\n\n\n\nMar 9, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nNormalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 28, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",
@@ -189,25 +224,32 @@
     "text": "Interests\n\nLarge language models & fine-tuning\nVector search & retrieval systems\nData pipelines & engineering"
   },
   {
-    "objectID": "blog.html",
-    "href": "blog.html",
-    "title": "Blog",
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Hi, I'm Mahamadi NIKIEMA",
     "section": "",
-    "text": "Chat Templates: Structuring LLM Conversations\n\n\n\nbest-practices\n\nLLM\n\n\n\nUnderstanding chat templates for LLMs\n\n\n\n\n\nMar 9, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nNormalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nDec 28, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items"
+    "text": "ML Engineer writing about machine learning, LLMs, and data engineering.\n  \n    \n       GitHub\n    \n    \n       Twitter\n    \n    \n       LinkedIn\n    \n    \n      🤗 Hugging Face"
   },
   {
-    "objectID": "posts/welcome/index.html",
-    "href": "posts/welcome/index.html",
-    "title": "Welcome To My Blog",
+    "objectID": "index.html#latest-posts",
+    "href": "index.html#latest-posts",
+    "title": "Hi, I'm Mahamadi NIKIEMA",
+    "section": "Latest Posts",
+    "text": "Latest Posts\n\n\n\n\n\nChat Templates: Structuring LLM Conversations\n\n\n\nbest-practices\n\nLLM\n\n\n\nUnderstanding chat templates for LLMs\n\n\n\n\n\nMar 9, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nNormalization in Transformers\n\n\n\nDeep Learning\n\n\n\nNormalization Methods in Transformers\n\n\n\n\n\nAug 15, 2025\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\nScraping the most listened podcast in France, GDIY\n\n\n\nscraping\n\n\n\nData scraping project\n\n\n\n\n\nDec 29, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items\n\nSee all posts →"
+  },
+  {
+    "objectID": "things_i_learned/create_class_with_type/index.html",
+    "href": "things_i_learned/create_class_with_type/index.html",
+    "title": "Classes Are Instances of type",
     "section": "",
-    "text": "This is the first post of my blog.\nI’ll use this space to share what I’m learning, exploring, and building."
+    "text": "When using the function type on an object, Python will tell us which instance this object belongs to.\n\nx = [1, 2, 3]\nprint(type(x))\n\n&lt;class 'list'&gt;\n\n\nIf we apply the type method to a class like list, we get:\n\nprint(type(list))\nprint(type(type(x)))\n\n&lt;class 'type'&gt;\n&lt;class 'type'&gt;\n\n\nA class is an instance of type and we can create a class from type.\ntype can take three arguments:\ntype(classname, superclasses, attributes_dict)\n\nclassname is the name of the class\nsuperclasses is a tuple of the superclasses\nattributes_dict is the dictionary attribute of the class.\n\n\nclass Dog:\n    pass\n\ndog = Dog()\nprint(type(dog))\n\n&lt;class '__main__.Dog'&gt;\n\n\nThe same creation using type, passing an attribute a, and adding a method bark to the class:\n\nDog = type(\"Dog\", (), {\"a\":1, \"bark\": lambda self: \"woof\"})\nd = Dog()\nprint(type(d))\nprint(d.a)\nprint(d.bark())\n\n&lt;class '__main__.Dog'&gt;\n1\nwoof\n\n\nWe can access the attribute a and call the method bark, which was not possible during the first creation of the class.\nEven if it is uncommon, we can use type to dynamically create classes. The class keyword is basically another way to create a class; under the hood, Python uses type."
   },
   {
     "objectID": "things_i_learned/index.html",
     "href": "things_i_learned/index.html",
     "title": "Today I Learned",
     "section": "",
-    "text": "Hybrid Search with pgvector and tsvector in PostgreSQL\n\n\n\npostgresql\n\npgvector\n\nsearch\n\nTIL\n\n\n\nHow to combine dense vector search and full-text search in PostgreSQL using pgvector, tsvector, and Reciprocal Rank Fusion (RRF)\n\n\n\n\n\nMar 16, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nClasses Are Instances of type\n\n\n\npython\n\nTIL\n\n\n\nUnderstanding Python’s type and Class Creation\n\n\n\n\n\nFeb 21, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nSerialisation with Msgspec\n\n\n\npython\n\nTIL\n\n\n\nAnother Serializer in Python\n\n\n\n\n\nDec 22, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items"
+    "text": "Making a Custom Model Compatible with HuggingFace Trainer\n\n\n\ntransformers\n\npytorch\n\ntraining\n\nTIL\n\n\n\nPlug any custom PyTorch model into HuggingFace Trainer: forward must return a loss.\n\n\n\n\n\nApr 8, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nHybrid Search with pgvector and tsvector in PostgreSQL\n\n\n\npostgresql\n\npgvector\n\nsearch\n\nTIL\n\n\n\nHow to combine dense vector search and full-text search in PostgreSQL using pgvector, tsvector, and Reciprocal Rank Fusion (RRF)\n\n\n\n\n\nMar 16, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nClasses Are Instances of type\n\n\n\npython\n\nTIL\n\n\n\nUnderstanding Python’s type and Class Creation\n\n\n\n\n\nFeb 21, 2026\n\n\nMahamadi NIKIEMA\n\n\n\n\n\n\n\n\n\n\n\n\nSerialisation with Msgspec\n\n\n\npython\n\nTIL\n\n\n\nAnother Serializer in Python\n\n\n\n\n\nDec 22, 2024\n\n\nMahamadi NIKIEMA\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "things_i_learned/test/index.html",
