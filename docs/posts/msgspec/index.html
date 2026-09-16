@@ -378,7 +378,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="encoding" class="level2">
 <h2 class="anchored" data-anchor-id="encoding">Encoding</h2>
 <p>You can encode Python objects into JSON or MessagePack.</p>
-<div id="2cfe79be" class="cell" data-execution_count="1">
+<div id="e0e743a4" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> msgspec</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Encoding as JSON</span></span>
@@ -400,7 +400,7 @@ b'\x81\xa4name\xacawesome name'</code></pre>
 <p>At the heart of msgspec is the <code>Struct</code> class, which provides structure and type safety for your data models.</p>
 <section id="defining-a-structured-mode" class="level3">
 <h3 class="anchored" data-anchor-id="defining-a-structured-mode">Defining a Structured Mode</h3>
-<div id="9b99ac29" class="cell" data-execution_count="2">
+<div id="944e4cf8" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> msgspec</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Set</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -419,7 +419,7 @@ b'\x81\xa4name\xacawesome name'</code></pre>
 </div>
 <p>Encoding the data</p>
 <p>You can encode the structured object directly into JSON:</p>
-<div id="27b94eab" class="cell" data-execution_count="3">
+<div id="ea5b37ad" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>msgspec.json.encode(spacy_cfg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>b'{"name":"spacy","language":"french","stop_words":[]}'</code></pre>
@@ -428,7 +428,7 @@ b'\x81\xa4name\xacawesome name'</code></pre>
 <p>Decoding the data</p>
 <p>JSON Decoding</p>
 <p>By default, <code>msgspec</code> does not perform type validation during the decoding:</p>
-<div id="451d4ef7" class="cell" data-execution_count="4">
+<div id="7afa215c" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>msgspec.json.decode(<span class="st">b'{"name":"spacy","language":"french","stop_words":[]}'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>{'name': 'spacy', 'language': 'french', 'stop_words': []}</code></pre>
@@ -436,7 +436,7 @@ b'\x81\xa4name\xacawesome name'</code></pre>
 </div>
 <p>Type Validation</p>
 <p><code>msgspec</code> makes it easy to decode serialized data into a structured object, complete with type validation:</p>
-<div id="f80b9beb" class="cell" data-execution_count="5">
+<div id="69093857" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>msgspec.json.decode(<span class="st">b'{"name":"spacy","language":"french","stop_words":[]}'</span>, <span class="bu">type</span><span class="op">=</span>ConfigStrategy)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>ConfigStrategy(name='spacy', language='french', stop_words=set())</code></pre>
