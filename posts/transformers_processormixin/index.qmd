@@ -1,0 +1,84 @@
+---
+title: "Multimodal Processors in Transformers: ProcessorMixin"
+author: "Mahamadi NIKIEMA"
+date: "2026-03-24"
+description: "How multimodal processors differ from plain tokenizers in HuggingFace Transformers, and how to handle apply_chat_template and padding correctly."
+draft: true
+categories: [transformers, llm, multimodal, TIL]
+---
+
+## What is ProcessorMixin?
+
+In HuggingFace Transformers, multimodal models (Qwen3-VL, PaliGemma, etc.) use a **processor** instead of a plain tokenizer. All processors inherit from `ProcessorMixin`.
+
+A processor wraps:
+
+- `processor.tokenizer` — the underlying text tokenizer
+- `processor.image_processor` (or similar) — for vision/audio inputs
+
+```python
+from transformers import ProcessorMixin
+
+# True for Qwen3VLProcessor
+isinstance(processor, ProcessorMixin)
+```
+
+## apply_chat_template: content must be a list of dicts
+
+With a plain tokenizer, message content can be a plain string:
+
+```python
+# Works with a plain tokenizer (e.g. LlamaTokenizer)
+messages = [
+    {"role": "system", "content": "You are a translator."},
+    {"role": "user", "content": "Translate this."},
+]
+```
+
+With a `ProcessorMixin` processor, content **must** be a list of dicts with a `"type"` key:
+
+```python
+# Required for ProcessorMixin (e.g. Qwen3VLProcessor)
+messages = [
+    {
+        "role": "user",
+        "content": [
+            {"type": "text", "text": "You are a translator. Translate this."},
+            {"type": "text", "text": source_text},
+        ],
+    }
+]
+```
+
+Passing a plain string raises:
+
+```
+TypeError: string indices must be integers, not 'str'
+```
+
+because `processing_utils.py` iterates over `message["content"]` expecting a list of dicts.
+
+## No .pad() on the processor
+
+`ProcessorMixin` does **not** expose a `.pad()` method. To pad a batch, delegate to the underlying tokenizer:
+
+```python
+padder = getattr(tokenizer, "tokenizer", tokenizer)
+padded = padder.pad({"input_ids": ..., "attention_mask": ...}, ...)
+```
+
+`getattr(tokenizer, "tokenizer", tokenizer)` is safe for both cases:
+
+- plain tokenizer → returns itself (no `.tokenizer` attribute)
+- processor → returns `processor.tokenizer`
+
+## Detecting the format at runtime
+
+```python
+from transformers import ProcessorMixin
+
+def is_multimodal_processor(tokenizer) -> bool:
+    return isinstance(tokenizer, ProcessorMixin)
+```
+
+Use this check to branch between the two content formats when writing generic prompt-building utilities.

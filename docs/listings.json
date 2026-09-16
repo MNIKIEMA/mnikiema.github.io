@@ -2,19 +2,47 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/text_marimo/index.html",
+      "/posts/padding_with_unsloth/index.html",
+      "/posts/hf_trainer_compatible_model/index.html",
+      "/posts/transformers_processormixin/index.html",
+      "/posts/pgvector/index.html",
       "/posts/prompt_template/templating.html",
+      "/posts/create_class_with_type/index.html",
+      "/posts/nvidia_grandmaster_playbook/kaggle_playbook.html",
       "/posts/layernorm-rmsnorm/normalization.html",
+      "/posts/data_collators/data_collators.html",
+      "/posts/collator_and_trainer/data_collator_and_trainer.html",
+      "/posts/custom_reranker_lancedb/lancedb_custom_reranker.html",
+      "/posts/from-python-to-rust/python-to-rust.html",
       "/posts/gdiy/2023-08-06-scrap-gdiy.html",
-      "/posts/welcome/index.html"
+      "/posts/batching_sbert_lancedb/sbert_lance.html",
+      "/posts/path_lib/testing.html",
+      "/posts/welcome/index.html",
+      "/posts/msgspec/index.html"
     ]
   },
   {
     "listing": "/index.html",
     "items": [
+      "/posts/text_marimo/index.html",
+      "/posts/padding_with_unsloth/index.html",
+      "/posts/hf_trainer_compatible_model/index.html",
+      "/posts/transformers_processormixin/index.html",
+      "/posts/pgvector/index.html",
       "/posts/prompt_template/templating.html",
+      "/posts/create_class_with_type/index.html",
+      "/posts/nvidia_grandmaster_playbook/kaggle_playbook.html",
       "/posts/layernorm-rmsnorm/normalization.html",
+      "/posts/data_collators/data_collators.html",
+      "/posts/collator_and_trainer/data_collator_and_trainer.html",
+      "/posts/custom_reranker_lancedb/lancedb_custom_reranker.html",
+      "/posts/from-python-to-rust/python-to-rust.html",
       "/posts/gdiy/2023-08-06-scrap-gdiy.html",
-      "/posts/welcome/index.html"
+      "/posts/batching_sbert_lancedb/sbert_lance.html",
+      "/posts/path_lib/testing.html",
+      "/posts/welcome/index.html",
+      "/posts/msgspec/index.html"
     ]
   },
   {
