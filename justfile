@@ -9,21 +9,3 @@ render:
 preview:
     quarto preview
 
-# Show current version
-version:
-    @uv version --short
-
-build:
-    echo "Building"
-
-test: build
-    echo "Testing"
-
-@foo:
-  pwd
-
-@bar:
-  pwd
-
-fo argument:
-  touch {{argument}}

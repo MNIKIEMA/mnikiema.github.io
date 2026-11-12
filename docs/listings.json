@@ -2,26 +2,26 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/moore_keyboard/index.html",
       "/posts/hf_trainer_compatible_model/index.html",
       "/posts/pgvector/index.html",
       "/posts/prompt_template/templating.html",
       "/posts/create_class_with_type/index.html",
       "/posts/layernorm-rmsnorm/normalization.html",
       "/posts/gdiy/2023-08-06-scrap-gdiy.html",
-      "/posts/welcome/index.html",
       "/posts/msgspec/index.html"
     ]
   },
   {
     "listing": "/index.html",
     "items": [
+      "/posts/moore_keyboard/index.html",
       "/posts/hf_trainer_compatible_model/index.html",
       "/posts/pgvector/index.html",
       "/posts/prompt_template/templating.html",
       "/posts/create_class_with_type/index.html",
       "/posts/layernorm-rmsnorm/normalization.html",
       "/posts/gdiy/2023-08-06-scrap-gdiy.html",
-      "/posts/welcome/index.html",
       "/posts/msgspec/index.html"
     ]
   }

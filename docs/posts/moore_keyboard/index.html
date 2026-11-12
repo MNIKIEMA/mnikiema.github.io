@@ -7,9 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Mahamadi NIKIEMA">
-<meta name="dcterms.date" content="2024-12-28">
+<meta name="dcterms.date" content="2026-11-12">
+<meta name="description" content="Keyman forces QWERTY on Linux. The built-in French (Togo) layout gives you ã, ẽ, ũ, ʋ, ɩ and ɛ on a normal AZERTY keyboard.">
 
-<title>Welcome To My Blog – Mahamadi NIKIEMA</title>
+<title>Typing Mooré on Linux with an AZERTY Keyboard – Mahamadi NIKIEMA</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -24,6 +25,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -292,9 +328,18 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Welcome To My Blog</h1>
-                                <div class="quarto-categories">
-                <div class="quarto-category">news</div>
+      <h1 class="title">Typing Mooré on Linux with an AZERTY Keyboard</h1>
+                  <div>
+        <div class="description">
+          Keyman forces QWERTY on Linux. The built-in French (Togo) layout gives you ã, ẽ, ũ, ʋ, ɩ and ɛ on a normal AZERTY keyboard.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">linux</div>
+                <div class="quarto-category">windows</div>
+                <div class="quarto-category">mooré</div>
+                <div class="quarto-category">keyboard</div>
+                <div class="quarto-category">TIL</div>
               </div>
                   </div>
   </div>
@@ -312,7 +357,7 @@ ul.task-list li input[type="checkbox"] {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">December 28, 2024</p>
+        <p class="date">November 12, 2026</p>
       </div>
     </div>
     
@@ -332,10 +377,133 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<p>This is the first post of my blog.</p>
-<p>I’ll use this space to share what I’m learning, exploring, and building.</p>
+<p>Mooré uses letters that are not on a French keyboard: <strong>ɛ, ɩ, ʋ</strong> and nasal vowels like <strong>ã, ẽ, ũ</strong>. The usual answer is to install <a href="https://keyman.com">Keyman</a> and the <em>Clavier du Burkina</em> keyboard from SIL Burkina Faso. On Windows, that works well. On Linux with an AZERTY keyboard, it does not.</p>
+<section id="the-problem-keyman-switches-you-to-qwerty" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem-keyman-switches-you-to-qwerty">The problem: Keyman switches you to QWERTY</h2>
+<p>I installed Keyman and <em>Clavier du Burkina</em> on Ubuntu (GNOME). My keyboard is AZERTY, but my system language is English. As soon as I switched to the Keyman keyboard, typing the key labelled <strong>A</strong> gave <code>q</code>, and <strong>Z</strong> gave <code>w</code>. The layout was QWERTY.</p>
+<p>The system language is not the cause. Every Keyman keyboard registered in IBus declares a US layout:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-c</span> <span class="st">"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="st">import gi; gi.require_version('IBus', '1.0'); from gi.repository import IBus</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="st">for e in IBus.Bus().list_engines():</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="st">    if 'keyman' in e.get_name():</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="st">        print(e.get_name(), e.get_layout())</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="st">"</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># mos:/home/.../clavbur9/clavbur9.kmx us</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>When you activate the engine, GNOME switches the keyboard to <code>us</code>. On my machine, <code>setxkbmap -query</code> showed <code>layout: fr,us,us</code>. Keyman for Linux also reads keys by their position on a US keyboard, and Keyman 18 has no setting to use a different base layout.</p>
+<p>So on Linux, <em>Clavier du Burkina</em> only works if you type as if on QWERTY.</p>
+</section>
+<section id="the-fix-the-french-togo-layout" class="level2">
+<h2 class="anchored" data-anchor-id="the-fix-the-french-togo-layout">The fix: the French (Togo) layout</h2>
+<p>Linux already includes a keyboard layout for this: <strong>French (Togo)</strong> (<code>tg</code> in XKB). It is standard French AZERTY with West African letters added on <strong>AltGr</strong> (the right Alt key). No Keyman needed.</p>
+<p>To add it:</p>
+<ol type="1">
+<li>Open <strong>Settings → Keyboard</strong>.</li>
+<li>Under <strong>Input Sources</strong>, click <strong>+ Add Input Source</strong>.</li>
+<li>Choose <strong>French → French (Togo)</strong>. If it isn’t listed, click <strong>⋮</strong> and search for “Togo”.</li>
+<li>Press <strong>Super + Space</strong> to switch between layouts.</li>
+</ol>
+<p>Or from a terminal:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gsettings</span> set org.gnome.desktop.input-sources sources <span class="st">"[('xkb', 'fr'), ('xkb', 'tg')]"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="typing-the-mooré-letters" class="level2">
+<h2 class="anchored" data-anchor-id="typing-the-mooré-letters">Typing the Mooré letters</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Letter</th>
+<th>Keys</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ɛ / Ɛ</td>
+<td>AltGr + r / AltGr + Shift + r</td>
+</tr>
+<tr class="even">
+<td>ɩ / Ɩ</td>
+<td>AltGr + i / AltGr + Shift + i</td>
+</tr>
+<tr class="odd">
+<td>ʋ / Ʋ</td>
+<td>AltGr + v / AltGr + Shift + v</td>
+</tr>
+<tr class="even">
+<td>ã</td>
+<td>AltGr + !, then a</td>
+</tr>
+<tr class="odd">
+<td>ẽ</td>
+<td>AltGr + !, then e</td>
+</tr>
+<tr class="even">
+<td>ũ</td>
+<td>AltGr + !, then u</td>
+</tr>
+</tbody>
+</table>
+<p><strong>AltGr + !</strong> is a <em>dead key</em>: nothing appears when you press it, and the tilde goes on the next letter you type. Press the tilde <strong>first</strong>, then the vowel. This works with capitals too (Ã, Ẽ, Ũ) and with ɛ and ɔ (ɛ̃, ɔ̃).</p>
+<p>The layout also has other letters used in the region:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Letter</th>
+<th>Keys</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ɔ</td>
+<td>AltGr + o</td>
+</tr>
+<tr class="even">
+<td>ŋ</td>
+<td>AltGr + n</td>
+</tr>
+<tr class="odd">
+<td>ɲ</td>
+<td>AltGr + m</td>
+</tr>
+<tr class="even">
+<td>ɓ</td>
+<td>AltGr + b</td>
+</tr>
+<tr class="odd">
+<td>ɗ</td>
+<td>AltGr + t</td>
+</tr>
+<tr class="even">
+<td>ƴ</td>
+<td>AltGr + y</td>
+</tr>
+<tr class="odd">
+<td>ɣ</td>
+<td>AltGr + g</td>
+</tr>
+</tbody>
+</table>
+<p>Tone marks are dead keys as well: acute <strong>AltGr + *</strong>, grave <strong>AltGr + ù</strong>, macron <strong>AltGr + :</strong> and caron <strong>AltGr + ^</strong>.</p>
+</section>
+<section id="windows" class="level2">
+<h2 class="anchored" data-anchor-id="windows">Windows</h2>
+<p>You can download the Windows version of Keyman from <a href="https://keyman.com/en/windows/download">keyman.com/windows/download</a>. The <a href="https://keyman.com/en/keyboards/clavbur9?bcp47=mos#expand-languages">Clavier du Burkina</a> keyboard (<code>clavbur9</code>) works well if you already type on a French AZERTY layout. It keeps the familiar AZERTY keys and adds Mooré letters, along with characters for other languages of Burkina Faso, as shown below:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./keyman_clavier_burkina.png" class="img-fluid figure-img"></p>
+<figcaption>Clavier du Burkina layout in Keyman</figcaption>
+</figure>
+</div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<ul>
+<li>On Linux, Keyman keyboards use a US QWERTY base, whatever your physical keyboard is.</li>
+<li>If you type on AZERTY, use the built-in <strong>French (Togo)</strong> layout.</li>
+<li>ɛ, ɩ, ʋ are on AltGr + r, i, v, and nasal vowels are <strong>AltGr + !</strong> followed by the vowel.</li>
+<li>On Windows, <em>Clavier du Burkina</em> works well with a French AZERTY layout.</li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
