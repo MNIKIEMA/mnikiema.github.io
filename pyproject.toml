@@ -27,14 +27,19 @@ dev = [
 [tool.rumdl]
 # Lint both plain Markdown and Quarto sources
 include = ["**/*.md", "**/*.qmd"]
+line-length = 100
 exclude = ["docs/**", "_freeze/**", "_extensions/**", ".quarto/**", ".venv/**"]
 disable = [
-    "MD013", # line length: prose paragraphs are written on one line
     "MD014", # `$ cmd` without output is fine in tutorials
     "MD033", # inline HTML is used on purpose in posts
     "MD041", # Quarto front matter supplies the title, no H1 needed
     "MD078", # Quarto chunk labels are not required
 ]
+
+[tool.rumdl.MD013]
+line-length = 100
+code-blocks = false # long lines in code samples are fine
+reflow = true # `rumdl fmt` rewraps long paragraphs
 
 [tool.rumdl.per-file-flavor]
 "**/*.qmd" = "quarto"

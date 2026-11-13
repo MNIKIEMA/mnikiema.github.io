@@ -12,15 +12,25 @@ categories: programming
 
 ## Introduction
 
-I am a Pythonista, and I have been using Python for a while now for machine learning. I love the language, its simplicity, and its vast ecosystem of libraries. However, I have always been curious about Rust. I have heard a lot of good things about it, especially its performance and safety features. So, I decided to take the plunge and learn Rust.
+I am a Pythonista, and I have been using Python for a while now for machine learning. I love the
+language, its simplicity, and its vast ecosystem of libraries. However, I have always been curious
+about Rust. I have heard a lot of good things about it, especially its performance and safety
+features. So, I decided to take the plunge and learn Rust.
 
 ## What did I learn?
 
-Rust is a systems programming language that focuses on performance, safety, and concurrency. It is designed to be fast and efficient, with zero-cost abstractions. This means that you can write high-level code without sacrificing performance. Rust also has a strong type system and ownership model, which helps prevent common programming errors such as null pointer dereferences and data races.
+Rust is a systems programming language that focuses on performance, safety, and concurrency. It is
+designed to be fast and efficient, with zero-cost abstractions. This means that you can write
+high-level code without sacrificing performance. Rust also has a strong type system and ownership
+model, which helps prevent common programming errors such as null pointer dereferences and data
+races.
 
 ### Mutability
 
-In Python, variables are mutable by default. This means that you can change the value of a variable at any time. In Rust, variables are immutable by default. This means that once you assign a value to a variable, you cannot change it unless you explicitly declare it as mutable using the `mut` keyword.
+In Python, variables are mutable by default. This means that you can change the value of a variable
+at any time. In Rust, variables are immutable by default. This means that once you assign a value to
+a variable, you cannot change it unless you explicitly declare it as mutable using the `mut`
+keyword.
 
 ```rust
 fn main() {
@@ -34,7 +44,9 @@ fn main() {
 
 ### Functions
 
-In Python, you define functions using the `def` keyword. In Rust, you define functions using the `fn` keyword. Rust also has a concept of function signatures, which specify the types of the function's parameters and return value.
+In Python, you define functions using the `def` keyword. In Rust, you define functions using the
+`fn` keyword. Rust also has a concept of function signatures, which specify the types of the
+function's parameters and return value.
 
 ```rust
 fn add(x: i32, y: i32) -> i32 {
@@ -49,7 +61,10 @@ fn main() {
 
 ### Stack, Heap and Borrowing
 
-In Python, memory management is handled by the garbage collector. In Rust, you have more control over memory management. Rust uses a system of ownership and borrowing to manage memory. This means that you can allocate memory on the stack or heap, and you have to explicitly manage the lifetime of your variables.
+In Python, memory management is handled by the garbage collector. In Rust, you have more control
+over memory management. Rust uses a system of ownership and borrowing to manage memory. This means
+that you can allocate memory on the stack or heap, and you have to explicitly manage the lifetime of
+your variables.
 
 ```rust
 fn main() {
@@ -61,7 +76,10 @@ fn main() {
 
 ## Conclusion
 
-Learning Rust has been a challenging but rewarding experience. I have learned a lot about memory management, performance, and safety. I am excited to continue my journey with Rust and explore its vast ecosystem of libraries and tools. I hope this post helps other Pythonistas who are considering learning Rust.
+Learning Rust has been a challenging but rewarding experience. I have learned a lot about memory
+management, performance, and safety. I am excited to continue my journey with Rust and explore its
+vast ecosystem of libraries and tools. I hope this post helps other Pythonistas who are considering
+learning Rust.
 
 ## Resources
 

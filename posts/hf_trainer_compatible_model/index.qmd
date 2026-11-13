@@ -9,15 +9,19 @@ categories: [transformers, pytorch, training, TIL]
 
 ## The contract HF Trainer expects
 
-`Trainer` only needs one thing from your model: **`forward()` must return an object with a `.loss` attribute** when labels are provided. Everything else (optimizer, scheduler, gradient accumulation) is handled for you.
+`Trainer` only needs one thing from your model:
+**`forward()` must return an object with a `.loss` attribute** when labels are provided. Everything
+else (optimizer, scheduler, gradient accumulation) is handled for you.
 
 ## 1. Wrap model + loss in one `nn.Module`
 
-Use `ModelOutput` (a dataclass from `transformers`) as the return type because Trainer knows how to unpack it.
+Use `ModelOutput` (a dataclass from `transformers`) as the return type because Trainer knows how to
+unpack it.
 
 Let us define two classes:
 
-- `Output` with two attributes: `loss`, required by the `Trainer`, and `predictions` to store predictions
+- `Output` with two attributes: `loss`, required by the `Trainer`, and `predictions` to store
+  predictions
 - A simple linear regression with 10 features called `SimpleModel`
 
 ```python
@@ -51,7 +55,8 @@ class SimpleModel(nn.Module):
 
 The dataset column names must **exactly match** the argument names of `forward()`.
 
-In our case, `forward()` expects `x` and `labels`, and we use `torch.rand` to generate uniformly distributed data as follows:
+In our case, `forward()` expects `x` and `labels`, and we use `torch.rand` to generate uniformly
+distributed data as follows:
 
 ```python
 
@@ -71,7 +76,8 @@ class SimpleDataset(Dataset):
 
 ## 3. Putting it all together
 
-We can pass the model and the dataset directly to the trainer for this simple case; no collator is needed.
+We can pass the model and the dataset directly to the trainer for this simple case; no collator is
+needed.
 
 ```python
 from transformers import Trainer, TrainingArguments

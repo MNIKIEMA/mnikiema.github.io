@@ -6,11 +6,15 @@ description: "Keyman forces QWERTY on Linux. The built-in French (Togo) layout g
 categories: [linux, windows, mooré, keyboard, TIL]
 ---
 
-Mooré uses letters that are not on a French keyboard: **ɛ, ɩ, ʋ** and nasal vowels like **ã, ẽ, ũ**. The usual answer is to install [Keyman](https://keyman.com) and the *Clavier du Burkina* keyboard from SIL Burkina Faso. On Windows, that works well. On Linux with an AZERTY keyboard, it does not.
+Mooré uses letters that are not on a French keyboard: **ɛ, ɩ, ʋ** and nasal vowels like **ã, ẽ, ũ**.
+The usual answer is to install [Keyman](https://keyman.com) and the *Clavier du Burkina* keyboard
+from SIL Burkina Faso. On Windows, that works well. On Linux with an AZERTY keyboard, it does not.
 
 ## The problem: Keyman switches you to QWERTY
 
-I installed Keyman and *Clavier du Burkina* on Ubuntu (GNOME). My keyboard is AZERTY, but my system language is English. As soon as I switched to the Keyman keyboard, typing the key labelled **A** gave `q`, and **Z** gave `w`. The layout was QWERTY.
+I installed Keyman and *Clavier du Burkina* on Ubuntu (GNOME). My keyboard is AZERTY, but my system
+language is English. As soon as I switched to the Keyman keyboard, typing the key labelled **A**
+gave `q`, and **Z** gave `w`. The layout was QWERTY.
 
 The system language is not the cause. Every Keyman keyboard registered in IBus declares a US layout:
 
@@ -24,13 +28,16 @@ for e in IBus.Bus().list_engines():
 # mos:/home/.../clavbur9/clavbur9.kmx us
 ```
 
-When you activate the engine, GNOME switches the keyboard to `us`. On my machine, `setxkbmap -query` showed `layout: fr,us,us`. Keyman for Linux also reads keys by their position on a US keyboard, and Keyman 18 has no setting to use a different base layout.
+When you activate the engine, GNOME switches the keyboard to `us`. On my machine, `setxkbmap -query`
+showed `layout: fr,us,us`. Keyman for Linux also reads keys by their position on a US keyboard, and
+Keyman 18 has no setting to use a different base layout.
 
 So on Linux, *Clavier du Burkina* only works if you type as if on QWERTY.
 
 ## The fix: the French (Togo) layout
 
-Linux already includes a keyboard layout for this: **French (Togo)** (`tg` in XKB). It is standard French AZERTY with West African letters added on **AltGr** (the right Alt key). No Keyman needed.
+Linux already includes a keyboard layout for this: **French (Togo)** (`tg` in XKB). It is standard
+French AZERTY with West African letters added on **AltGr** (the right Alt key). No Keyman needed.
 
 To add it:
 
@@ -56,7 +63,9 @@ gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'fr'), ('xkb', '
 | ẽ | AltGr + !, then e |
 | ũ | AltGr + !, then u |
 
-**AltGr + !** is a *dead key*: nothing appears when you press it, and the tilde goes on the next letter you type. Press the tilde **first**, then the vowel. This works with capitals too (Ã, Ẽ, Ũ) and with ɛ and ɔ (ɛ̃, ɔ̃).
+**AltGr + !** is a *dead key*: nothing appears when you press it, and the tilde goes on the next
+letter you type. Press the tilde **first**, then the vowel. This works with capitals too (Ã, Ẽ, Ũ)
+and with ɛ and ɔ (ɛ̃, ɔ̃).
 
 The layout also has other letters used in the region:
 
@@ -70,12 +79,17 @@ The layout also has other letters used in the region:
 | ƴ | AltGr + y |
 | ɣ | AltGr + g |
 
-Tone marks are dead keys as well: acute **AltGr + \***, grave **AltGr + ù**, macron **AltGr + :** and caron **AltGr + ^**.
+Tone marks are dead keys as well: acute **AltGr + \***, grave **AltGr + ù**, macron **AltGr + :**
+and caron **AltGr + ^**.
 
 ## Windows
 
-You can download the Windows version of Keyman from [keyman.com/windows/download](https://keyman.com/en/windows/download).
-The [Clavier du Burkina](https://keyman.com/en/keyboards/clavbur9?bcp47=mos#expand-languages) keyboard (`clavbur9`) works well if you already type on a French AZERTY layout. It keeps the familiar AZERTY keys and adds Mooré letters, along with characters for other languages of Burkina Faso, as shown below:
+You can download the Windows version of Keyman from
+[keyman.com/windows/download](https://keyman.com/en/windows/download). The
+[Clavier du Burkina](https://keyman.com/en/keyboards/clavbur9?bcp47=mos#expand-languages) keyboard
+(`clavbur9`) works well if you already type on a French AZERTY layout. It keeps the familiar AZERTY
+keys and adds Mooré letters, along with characters for other languages of Burkina Faso, as shown
+below:
 
 ![Clavier du Burkina layout in Keyman](./keyman_clavier_burkina.png)
 

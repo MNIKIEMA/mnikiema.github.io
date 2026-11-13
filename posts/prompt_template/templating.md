@@ -6,7 +6,11 @@ description: "Understanding chat templates for LLMs"
 categories: [best-practices, LLM]
 ---
 
-Chat templates are used in chat models such as ChatGPT and Qwen to structure multi-turn conversations. If you've ever fine-tuned a chat model and gotten surprisingly poor results, the culprit might not be your data or hyperparameters; it could be your chat template. Chat templates define how conversations are structured when talking to models like ChatGPT or Qwen, and using the wrong one can silently hurt your model's performance.
+Chat templates are used in chat models such as ChatGPT and Qwen to structure multi-turn
+conversations. If you've ever fine-tuned a chat model and gotten surprisingly poor results, the
+culprit might not be your data or hyperparameters; it could be your chat template. Chat templates
+define how conversations are structured when talking to models like ChatGPT or Qwen, and using the
+wrong one can silently hurt your model's performance.
 
 ## Example
 
@@ -55,7 +59,12 @@ Some models may support additional roles, such as `tool` for tool-calling contex
 
 ## Under the Hood
 
-Under the hood, the tokenizer uses `jinja` to handle chat templates. It can be seen in the model repo on HF in the [tokenizer_config.json](https://huggingface.co/madoss/LFM2-2.6B-FRMOO-V2/blob/main/tokenizer_config.json) file or [chat_template.jinja](https://huggingface.co/madoss/LFM2-2.6B-FRMOO-V2/blob/main/chat_template.jinja) file.
+Under the hood, the tokenizer uses `jinja` to handle chat templates. It can be seen in the model
+repo on HF in the
+[tokenizer_config.json](https://huggingface.co/madoss/LFM2-2.6B-FRMOO-V2/blob/main/tokenizer_config.json)
+file or
+[chat_template.jinja](https://huggingface.co/madoss/LFM2-2.6B-FRMOO-V2/blob/main/chat_template.jinja)
+file.
 
 Here’s a simple example of what a Jinja-based chat template might look like inside a model:
 
@@ -71,8 +80,8 @@ Here’s a simple example of what a Jinja-based chat template might look like in
 
 ## What If a Model Doesn’t Have a Chat Template?
 
-Not every model supports chat formatting.
-If the model does not have a chat template like `openai-community/gpt2`, calling the method raises `ValueError` like this:
+Not every model supports chat formatting. If the model does not have a chat template like
+`openai-community/gpt2`, calling the method raises `ValueError` like this:
 
 ```bash
 ValueError: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
@@ -87,22 +96,31 @@ Learn more about [chat_templating](https://huggingface.co/docs/transformers/main
 
 ## Why Templates Matter
 
-Most chat-focused LLMs are trained with a specific template. Using a different one at inference or fine-tuning time can degrade performance.
+Most chat-focused LLMs are trained with a specific template. Using a different one at inference or
+fine-tuning time can degrade performance.
 
-If your input doesn't match the format the model was trained on, it might misunderstand the structure of the conversation, confuse roles, or produce weaker responses.
+If your input doesn't match the format the model was trained on, it might misunderstand the
+structure of the conversation, confuse roles, or produce weaker responses.
 
 ## A Quick Experiment
 
-For this purpose, [Daniel Furman](https://github.com/daniel-furman) made an experiment and shared some interesting results in this [GitHub issue conversation](https://github.com/EleutherAI/lm-evaluation-harness/issues/1098#issuecomment-1953068243).
+For this purpose, [Daniel Furman](https://github.com/daniel-furman) made an experiment and shared
+some interesting results in
+this [GitHub issue conversation](https://github.com/EleutherAI/lm-evaluation-harness/issues/1098#issuecomment-1953068243).
 
 Below is a table from his results:
 
 ![image](model-eval-template.png)
 
-It's easy to see from the table that using the right template has a big effect on the quality of the generation.
+It's easy to see from the table that using the right template has a big effect on the quality of the
+generation.
 
-That's why, when fine-tuning or evaluating chat-based models, **matching the training-time template** is crucial.
+That's why, when fine-tuning or evaluating chat-based models,
+**matching the training-time template** is crucial.
 
 ## Conclusion
 
-Chat templates are a small but critical detail when working with modern LLMs. Using the correct template when fine-tuning, evaluating, or prompting a model ensures that the model interprets your input as intended and produces better results. When building training pipelines or evaluation harnesses, make template handling a first-class concern, not an afterthought.
+Chat templates are a small but critical detail when working with modern LLMs. Using the correct
+template when fine-tuning, evaluating, or prompting a model ensures that the model interprets your
+input as intended and produces better results. When building training pipelines or evaluation
+harnesses, make template handling a first-class concern, not an afterthought.

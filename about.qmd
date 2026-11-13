@@ -22,15 +22,19 @@ about:
 
 ## About me
 
-I'm an ML Engineer passionate about building intelligent systems that work in practice — not just in notebooks.
+I'm an ML Engineer passionate about building intelligent systems that work in practice — not just in
+notebooks.
 
-I work at the intersection of machine learning, LLMs, and data engineering. My focus is on understanding how models actually behave: how they're trained, fine-tuned, and deployed.
+I work at the intersection of machine learning, LLMs, and data engineering. My focus is on
+understanding how models actually behave: how they're trained, fine-tuned, and deployed.
 
 ## This blog
 
-This is where I document things I learn. Posts range from deep dives into model internals (like normalization in transformers) to practical engineering (like hybrid search with pgvector).
+This is where I document things I learn. Posts range from deep dives into model internals (like
+normalization in transformers) to practical engineering (like hybrid search with pgvector).
 
-The **TILs** section captures smaller, sharper insights — the kind of things worth writing down so I don't forget them.
+The **TILs** section captures smaller, sharper insights — the kind of things worth writing down so I
+don't forget them.
 
 ## Interests
 

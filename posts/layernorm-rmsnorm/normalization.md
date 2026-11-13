@@ -11,7 +11,9 @@ categories: Deep Learning
 
 ## Introduction
 
-Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:
+Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied
+at various points to maintain stable gradients and enable faster convergence. They are used in the
+following ways:
 
 **Key benefits of normalization:**
 
@@ -29,7 +31,8 @@ There are many normalization methods in Transformers. Some of them are:
 
 ## LayerNorm
 
-LayerNorm is a normalization method that is used in the original Transformer model. It is used to normalize the input to the model. The formula for LayerNorm is:
+LayerNorm is a normalization method that is used in the original Transformer model. It is used to
+normalize the input to the model. The formula for LayerNorm is:
 
 $$
 y = \gamma \times \frac{x - \mu}{\sigma + \epsilon} + \beta
@@ -105,12 +108,14 @@ class RMSNorm(nn.Module):
         return norm_x.to(input_dtype)
 ```
 
-``RMSNorm`` is computationally more efficient than `LayerNorm` and is used in many models today such as `QWen-3` and `LLaMA-3`.
+``RMSNorm`` is computationally more efficient than `LayerNorm` and is used in many models today such
+as `QWen-3` and `LLaMA-3`.
 
 ## Conclusion
 
-Normalization is critical for stable and efficient Transformer training.
-While `LayerNorm` remains the standard choice, `RMSNorm` is increasingly popular in large-scale LLMs for its computational efficiency.
+Normalization is critical for stable and efficient Transformer training. While `LayerNorm` remains
+the standard choice, `RMSNorm` is increasingly popular in large-scale LLMs for its computational
+efficiency.
 
 ## Further Reading
 

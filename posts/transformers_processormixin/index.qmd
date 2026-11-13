@@ -9,7 +9,8 @@ categories: [transformers, llm, multimodal, TIL]
 
 ## What is ProcessorMixin?
 
-In HuggingFace Transformers, multimodal models (Qwen3-VL, PaliGemma, etc.) use a **processor** instead of a plain tokenizer. All processors inherit from `ProcessorMixin`.
+In HuggingFace Transformers, multimodal models (Qwen3-VL, PaliGemma, etc.) use a **processor**
+instead of a plain tokenizer. All processors inherit from `ProcessorMixin`.
 
 A processor wraps:
 
@@ -60,7 +61,8 @@ because `processing_utils.py` iterates over `message["content"]` expecting a lis
 
 ## No .pad() on the processor
 
-`ProcessorMixin` does **not** expose a `.pad()` method. To pad a batch, delegate to the underlying tokenizer:
+`ProcessorMixin` does **not** expose a `.pad()` method. To pad a batch, delegate to the underlying
+tokenizer:
 
 ```python
 padder = getattr(tokenizer, "tokenizer", tokenizer)
@@ -81,4 +83,5 @@ def is_multimodal_processor(tokenizer) -> bool:
     return isinstance(tokenizer, ProcessorMixin)
 ```
 
-Use this check to branch between the two content formats when writing generic prompt-building utilities.
+Use this check to branch between the two content formats when writing generic prompt-building
+utilities.
