@@ -6,9 +6,7 @@ description: "Another Serializer in Python"
 categories: [python, TIL]
 ---
 
-
 While Pydantic is well-known for serialization and validation in Python, I recently discovered [msgspec](https://github.com/jcrist/msgspec), a lightning-fast library that supports encoding and decoding various formats, including **JSON**, **YAML**, **TOML**, and **MessagePack**.
-
 
 ## Encoding
 
@@ -27,7 +25,6 @@ msgpack_data = msgspec.msgpack.encode({"name": "awesome name"})
 print(msgpack_data)
 
 ```
-
 
 ## The Core: `msgspec.Struct`
 
@@ -52,7 +49,6 @@ spacy_cfg = ConfigStrategy(name="spacy", language="french")
 print(spacy_cfg)
 ```
 
-
 Encoding the data
 
 You can encode the structured object directly into JSON:
@@ -73,7 +69,6 @@ By default, `msgspec` does not perform type validation during the decoding:
 msgspec.json.decode(b'{"name":"spacy","language":"french","stop_words":[]}')
 ```
 
-
 Type Validation
 
 ``msgspec`` makes it easy to decode serialized data into a structured object, complete with type validation:
@@ -83,8 +78,4 @@ Type Validation
 msgspec.json.decode(b'{"name":"spacy","language":"french","stop_words":[]}', type=ConfigStrategy)
 ```
 
-
-If you're looking for a high-performance alternative to libraries like Pydantic, give msgspec a try! 
-
-
-
+If you're looking for a high-performance alternative to libraries like Pydantic, give msgspec a try!

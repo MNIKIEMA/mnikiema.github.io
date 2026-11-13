@@ -83,7 +83,6 @@ pg_cursor = partial(execute, uri=uri)
 pg_cursor(query="CREATE EXTENSION IF NOT EXISTS vector;")
 ```
 
-
 ## Schema
 
 Store both dense and sparse representations in the same table:

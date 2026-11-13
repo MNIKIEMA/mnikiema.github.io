@@ -12,16 +12,17 @@ categories: scraping
 The podcast Generation Do It Yourself is one of the most listen in France.
 I listen this podcast every weekend and I decide to use my programming skill to scrap audio data from the web [site][gdiy]. This post will also guide you to download audio from your favorite podcasts.
 
-
 ## Prerequisites
 
 Before we dive into the details, you need to install the prerequisites by running:
 `pip install requests beautifulsoup4 tqdm`
 
 ## Understanding the Python Script
+
 Let's delve into the Python script that automates the process of downloading podcast episodes. I will introduce you to a class named `AudioLoader` that is equipped with methods to perform various tasks such as loading, updating, downloading, and processing audio data.
 
 ### Class Initialization
+
 The AudioLoader class initializes with a data_path parameter which is the path to save the downloaded audio files and keep track of loaded episodes. The loaded_episodes set stores the loaded episode names.
 
 ```python
@@ -30,6 +31,7 @@ class AudioLoader(object):
         self.data_path = data_path
         self.loaded_episodes = self.load_loaded_episodes()
 ```
+
 ### Loading and Updating Episode Details
 
 The `load_loaded_episodes` method checks for the existence of a loaded_episodes.json file and creates one if it doesn't exist, to store the details of loaded episodes.
@@ -49,7 +51,9 @@ def update_loaded_episodes(self, episode_id):
     with open(os.path.join(self.data_path,'loaded_episodes.json'), 'w') as f:
         json.dump(list(self.loaded_episodes), f)
 ```
+
 ### Fetching and Processing Data
+
 The `load_data` method fetches all episodes from the podcast's RSS feed using the requests and BeautifulSoup libraries.
 
 The `process_data` method iterates over all episodes and filters out those with certain phrases in the title (like "[EXTRAIT]"). It also prevents downloading episodes that have already been loaded.
@@ -91,6 +95,7 @@ def process_data(self):
 ```
 
 ### Downloading Episodes
+
 The `download_episode` method downloads an episode's audio file and saves it with a simplified name derived from the title.
 
 ```python
@@ -101,6 +106,7 @@ def download_episode(self, episode_url, audio_name):
 ```
 
 ### Simplifying File Names
+
 The `simplify_name` method simplifies episode names based on certain conditions to create a clean and concise file name for each downloaded audio file.
 
 ```python
@@ -117,10 +123,11 @@ def simplify_name(self, file_name:str):
         new_filename = file_name.split()[0]
     return new_filename
 ```
+
 ## Conclusion
+
 With this Python script, you can automatically load and download episodes of the Generation Do It Yourself podcast, saving you time and effort. You can customize the script to work with other podcasts by modifying the RSS feed URL and adjusting the naming conventions in the `simplify_name` method.
 
 Feel free to extend this script with more features, such as adding metadata to the audio files.
 
 [gdiy]: https://gdiy.fr
-

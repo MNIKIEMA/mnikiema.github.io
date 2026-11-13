@@ -13,7 +13,6 @@ x = [1, 2, 3]
 print(type(x))
 ```
 
-
 If we apply the `type` method to a class like list, we get:
 
 ```{python}
@@ -39,9 +38,7 @@ dog = Dog()
 print(type(dog))
 ```
 
-
 The same creation using `type`, passing an attribute `a`, and adding a method `bark` to the class:
-
 
 ```{python}
 Dog = type("Dog", (), {"a":1, "bark": lambda self: "woof"})
@@ -50,7 +47,6 @@ print(type(d))
 print(d.a)
 print(d.bark())
 ```
-
 
 We can access the attribute `a` and call the method `bark`, which was not possible during the first creation of the class.
 

@@ -9,7 +9,6 @@ date:   2025-08-15 14:04:51 +0200
 categories: Deep Learning
 ---
 
-
 ## Introduction
 
 Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:
@@ -41,7 +40,6 @@ $$
 - $\sigma$: Standard deviation of the features  
 - $\epsilon$: Small constant for numerical stability  
 - $\gamma$, $\beta$: Learnable scale and bias parameters  
-
 
 **PyTorch Implementation:**
 
@@ -78,7 +76,6 @@ where $x$ is the input, $y$ is the output, and $\epsilon$ is a small constant.
 
 In Python, you can use the following code to implement RMSNorm:
 
-
 ```python
 import torch
 import torch.nn as nn
@@ -114,7 +111,6 @@ class RMSNorm(nn.Module):
 
 Normalization is critical for stable and efficient Transformer training.
 While `LayerNorm` remains the standard choice, `RMSNorm` is increasingly popular in large-scale LLMs for its computational efficiency.
-
 
 ## Further Reading
 

@@ -6,7 +6,6 @@ description: "Understanding chat templates for LLMs"
 categories: [best-practices, LLM]
 ---
 
-
 Chat templates are used in chat models such as ChatGPT and Qwen to structure multi-turn conversations. If you've ever fine-tuned a chat model and gotten surprisingly poor results, the culprit might not be your data or hyperparameters; it could be your chat template. Chat templates define how conversations are structured when talking to models like ChatGPT or Qwen, and using the wrong one can silently hurt your model's performance.
 
 ## Example

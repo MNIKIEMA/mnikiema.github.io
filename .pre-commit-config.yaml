@@ -1,0 +1,10 @@
+repos:
+  - repo: https://github.com/rvben/rumdl-pre-commit
+    rev: v0.3.4
+    hooks:
+      - id: rumdl-check
+        args: [--fix]
+        # The hook only matches .md by default; include Quarto files too
+        types: [file]
+        files: \.(md|qmd)$
+        exclude: ^(docs|_freeze|_extensions)/

@@ -49,10 +49,9 @@ class SimpleModel(nn.Module):
 
 ## 2. Format the dataset with matching column names
 
-The dataset column names must **exactly match** the argument names of `forward()`. 
+The dataset column names must **exactly match** the argument names of `forward()`.
 
 In our case, `forward()` expects `x` and `labels`, and we use `torch.rand` to generate uniformly distributed data as follows:
-
 
 ```python
 

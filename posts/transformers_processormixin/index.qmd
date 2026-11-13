@@ -52,7 +52,7 @@ messages = [
 
 Passing a plain string raises:
 
-```
+```text
 TypeError: string indices must be integers, not 'str'
 ```
 

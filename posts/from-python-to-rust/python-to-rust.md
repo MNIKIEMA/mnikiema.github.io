@@ -31,7 +31,9 @@ fn main() {
     println!("x: {}, y: {}", x, y);
 }
 ```
-### Functions 
+
+### Functions
+
 In Python, you define functions using the `def` keyword. In Rust, you define functions using the `fn` keyword. Rust also has a concept of function signatures, which specify the types of the function's parameters and return value.
 
 ```rust
@@ -57,10 +59,12 @@ fn main() {
 }
 ```
 
-
 ## Conclusion
+
 Learning Rust has been a challenging but rewarding experience. I have learned a lot about memory management, performance, and safety. I am excited to continue my journey with Rust and explore its vast ecosystem of libraries and tools. I hope this post helps other Pythonistas who are considering learning Rust.
+
 ## Resources
+
 - [The Rust Programming Language](https://doc.rust-lang.org/book/)
 - [Rust by Example](https://doc.rust-lang.org/rust-by-example/)
 - [Rustlings](https://rustlings.rs/)
