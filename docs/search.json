@@ -35,74 +35,116 @@
     "text": "Warm Up\n\nHF does not stride by default in their data collators.\nWe can stride manually with the tokenizer using the stride and max_length parameters and return_overflowing_tokens=True.\nIf we want to see example like Sebastian did in his blog post, we need a custom data collator that implements striding.\n\nNow we know how to use the data collator for instruction fine-tuning. My use case is to fine-tune a decoder model for translation and we want to evaluate it using some metrics like BLEU. For this, we firstly rely on pandas loop to handle the batching and we want to use the data collator to tokenize the text. How to pass the text and reference to the data collator without loosing some variable like the reference? For this I subclass the data collator and add a new method __call__.\n\nclass TranslationPromptCollator(DataCollatorWithPadding):\n    def __init__(\n        self,\n        tokenizer: PreTrainedTokenizerBase,\n        pad_to_multiple_of: int | None = None,\n        return_tensors: str = \"pt\",\n        max_length: int | None = None,\n    ):\n        super().__init__(\n            tokenizer=tokenizer,\n            padding=True,\n            pad_to_multiple_of=pad_to_multiple_of,\n            return_tensors=return_tensors,\n            max_length=max_length,\n        )\n        self.tokenizer = tokenizer\n\n    def __call__(self, features):\n        src_texts = [f[\"src_text\"] for f in features]\n        tgt_texts = [f[\"tgt_text\"] for f in features]\n\n        examples = {\n            \"source\": src_texts,\n            \"target\": tgt_texts,\n        }\n\n        inputs = formatting_prompts_func(\n            examples=examples,\n            tokenizer=self.tokenizer,\n            add_generation_prompt=True,\n            tokenize=True,\n        )\n\n        inputs.pop(\"token_type_ids\", None)\n\n        return {\n            \"input_ids\": inputs[\"input_ids\"],\n            \"attention_mask\": inputs[\"attention_mask\"],\n            \"references\": tgt_texts,\n            \"sources\": src_texts,\n        }\n\n\n---------------------------------------------------------------------------\nNameError                                 Traceback (most recent call last)\nCell In[1], line 1\n----&gt; 1 class TranslationPromptCollator(DataCollatorWithPadding):\n      2     def __init__(\n      3         self,\n      4         tokenizer: PreTrainedTokenizerBase,\n   (...)      7         max_length: int | None = None,\n      8     ):\n      9         super().__init__(\n     10             tokenizer=tokenizer,\n     11             padding=True,\n   (...)     14             max_length=max_length,\n     15         )\n\nNameError: name 'DataCollatorWithPadding' is not defined"
   },
   {
-    "objectID": "posts/moore_keyboard/index.html",
-    "href": "posts/moore_keyboard/index.html",
-    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
+    "objectID": "posts/prompt_template/templating.html",
+    "href": "posts/prompt_template/templating.html",
+    "title": "Chat Templates: Structuring LLM Conversations",
     "section": "",
-    "text": "Mooré uses letters that are not on a French keyboard: ɛ, ɩ, ʋ and nasal vowels like ã, ẽ, ũ. The usual answer is to install Keyman and the Clavier du Burkina keyboard from SIL Burkina Faso. On Windows, that works well. On Linux with an AZERTY keyboard, it does not."
+    "text": "Chat templates are used in chat models such as ChatGPT and Qwen to structure multi-turn conversations. If you’ve ever fine-tuned a chat model and gotten surprisingly poor results, the culprit might not be your data or hyperparameters; it could be your chat template. Chat templates define how conversations are structured when talking to models like ChatGPT or Qwen, and using the wrong one can silently hurt your model’s performance."
   },
   {
-    "objectID": "posts/moore_keyboard/index.html#the-problem-keyman-switches-you-to-qwerty",
-    "href": "posts/moore_keyboard/index.html#the-problem-keyman-switches-you-to-qwerty",
-    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
-    "section": "The problem: Keyman switches you to QWERTY",
-    "text": "The problem: Keyman switches you to QWERTY\nI installed Keyman and Clavier du Burkina on Ubuntu (GNOME). My keyboard is AZERTY, but my system language is English. As soon as I switched to the Keyman keyboard, typing the key labelled A gave q, and Z gave w. The layout was QWERTY.\nThe system language is not the cause. Every Keyman keyboard registered in IBus declares a US layout:\npython3 -c \"\nimport gi; gi.require_version('IBus', '1.0'); from gi.repository import IBus\nfor e in IBus.Bus().list_engines():\n    if 'keyman' in e.get_name():\n        print(e.get_name(), e.get_layout())\n\"\n# mos:/home/.../clavbur9/clavbur9.kmx us\nWhen you activate the engine, GNOME switches the keyboard to us. On my machine, setxkbmap -query showed layout: fr,us,us. Keyman for Linux also reads keys by their position on a US keyboard, and Keyman 18 has no setting to use a different base layout.\nSo on Linux, Clavier du Burkina only works if you type as if on QWERTY."
+    "objectID": "posts/prompt_template/templating.html#example",
+    "href": "posts/prompt_template/templating.html#example",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "Example",
+    "text": "Example\nLet’s start with a simple chat:\nchat = [\n{\"role\": \"system\", \"content\": \"You are a helpful assistant.\"},\n{\"role\": \"user\", \"content\": \"What is the capital of France?\"},\n{\"role\": \"assistant\", \"content\": \"Paris is the capital of France.\"},\n]"
   },
   {
-    "objectID": "posts/moore_keyboard/index.html#the-fix-the-french-togo-layout",
-    "href": "posts/moore_keyboard/index.html#the-fix-the-french-togo-layout",
-    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
-    "section": "The fix: the French (Togo) layout",
-    "text": "The fix: the French (Togo) layout\nLinux already includes a keyboard layout for this: French (Togo) (tg in XKB). It is standard French AZERTY with West African letters added on AltGr (the right Alt key). No Keyman needed.\nTo add it:\n\nOpen Settings → Keyboard.\nUnder Input Sources, click + Add Input Source.\nChoose French → French (Togo). If it isn’t listed, click ⋮ and search for “Togo”.\nPress Super + Space to switch between layouts.\n\nOr from a terminal:\ngsettings set org.gnome.desktop.input-sources sources \"[('xkb', 'fr'), ('xkb', 'tg')]\""
+    "objectID": "posts/prompt_template/templating.html#applying-a-chat-template",
+    "href": "posts/prompt_template/templating.html#applying-a-chat-template",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "Applying a Chat Template",
+    "text": "Applying a Chat Template\nTo apply a template we can call the method tokenizer.apply_chat_template() like this:\nfrom transformers import AutoTokenizer\nmodel_id = \"LiquidAI/LFM2-350M\"\ntokenizer = AutoTokenizer.from_pretrained(model_id)\ninputs = tokenizer.apply_chat_template(chat, tokenize=False)\nprint(inputs)\nThis produces the following text:\n&lt;|startoftext|&gt;&lt;|im_start|&gt;system\nYou are a helpful assistant.&lt;|im_end|&gt;\n&lt;|im_start|&gt;user\nWhat is the capital of France?&lt;|im_end|&gt;\n&lt;|im_start|&gt;assistant\nParis is the capital of France.&lt;|im_end|&gt;"
   },
   {
-    "objectID": "posts/moore_keyboard/index.html#typing-the-mooré-letters",
-    "href": "posts/moore_keyboard/index.html#typing-the-mooré-letters",
-    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
-    "section": "Typing the Mooré letters",
-    "text": "Typing the Mooré letters\n\n\n\nLetter\nKeys\n\n\n\n\nɛ / Ɛ\nAltGr + r / AltGr + Shift + r\n\n\nɩ / Ɩ\nAltGr + i / AltGr + Shift + i\n\n\nʋ / Ʋ\nAltGr + v / AltGr + Shift + v\n\n\nã\nAltGr + !, then a\n\n\nẽ\nAltGr + !, then e\n\n\nũ\nAltGr + !, then u\n\n\n\nAltGr + ! is a dead key: nothing appears when you press it, and the tilde goes on the next letter you type. Press the tilde first, then the vowel. This works with capitals too (Ã, Ẽ, Ũ) and with ɛ and ɔ (ɛ̃, ɔ̃).\nThe layout also has other letters used in the region:\n\n\n\nLetter\nKeys\n\n\n\n\nɔ\nAltGr + o\n\n\nŋ\nAltGr + n\n\n\nɲ\nAltGr + m\n\n\nɓ\nAltGr + b\n\n\nɗ\nAltGr + t\n\n\nƴ\nAltGr + y\n\n\nɣ\nAltGr + g\n\n\n\nTone marks are dead keys as well: acute AltGr + *, grave AltGr + ù, macron AltGr + : and caron AltGr + ^."
+    "objectID": "posts/prompt_template/templating.html#how-it-works",
+    "href": "posts/prompt_template/templating.html#how-it-works",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "How it Works",
+    "text": "How it Works\nIt assigns roles such as system, user, assistant. Basically it is as follows:\n\nsystem: The instruction to control the LLM behavior\nuser: The user question to the LLM\nassistant: The LLM response\n\nSome models may support additional roles, such as tool for tool-calling contexts."
   },
   {
-    "objectID": "posts/moore_keyboard/index.html#windows",
-    "href": "posts/moore_keyboard/index.html#windows",
-    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
-    "section": "Windows",
-    "text": "Windows\nYou can download the Windows version of Keyman from keyman.com/windows/download. The Clavier du Burkina keyboard (clavbur9) works well if you already type on a French AZERTY layout. It keeps the familiar AZERTY keys and adds Mooré letters, along with characters for other languages of Burkina Faso, as shown below:\n\n\n\nClavier du Burkina layout in Keyman"
+    "objectID": "posts/prompt_template/templating.html#under-the-hood",
+    "href": "posts/prompt_template/templating.html#under-the-hood",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "Under the Hood",
+    "text": "Under the Hood\nUnder the hood, the tokenizer uses jinja to handle chat templates. It can be seen in the model repo on HF in the tokenizer_config.json file or chat_template.jinja file.\nHere’s a simple example of what a Jinja-based chat template might look like inside a model:\n{{bos_token}}{% for message in messages %}{{'&lt;|im_start|&gt;' + message['role'] + '\n\n' + message['content'] + '&lt;|im_end|&gt;' + '\n\n'}}{% endfor %}{% if add_generation_prompt %}{{ '&lt;|im_start|&gt;assistant\n\n' }}{% endif %}"
   },
   {
-    "objectID": "posts/moore_keyboard/index.html#summary",
-    "href": "posts/moore_keyboard/index.html#summary",
-    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
-    "section": "Summary",
-    "text": "Summary\n\nOn Linux, Keyman keyboards use a US QWERTY base, whatever your physical keyboard is.\nIf you type on AZERTY, use the built-in French (Togo) layout.\nɛ, ɩ, ʋ are on AltGr + r, i, v, and nasal vowels are AltGr + ! followed by the vowel.\nOn Windows, Clavier du Burkina works well with a French AZERTY layout."
+    "objectID": "posts/prompt_template/templating.html#what-if-a-model-doesnt-have-a-chat-template",
+    "href": "posts/prompt_template/templating.html#what-if-a-model-doesnt-have-a-chat-template",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "What If a Model Doesn’t Have a Chat Template?",
+    "text": "What If a Model Doesn’t Have a Chat Template?\nNot every model supports chat formatting. If the model does not have a chat template like openai-community/gpt2, calling the method raises ValueError like this:\nValueError: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating\nIn such cases, you can either:\n\nManually define your own Jinja template, or\nUse a text format template\n\nLearn more about chat_templating"
   },
   {
-    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html",
-    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html",
-    "title": "Scraping the most listened podcast in France, GDIY",
-    "section": "",
-    "text": "The podcast Generation Do It Yourself is one of the most listen in France. I listen this podcast every weekend and I decide to use my programming skill to scrap audio data from the web site. This post will also guide you to download audio from your favorite podcasts."
+    "objectID": "posts/prompt_template/templating.html#why-templates-matter",
+    "href": "posts/prompt_template/templating.html#why-templates-matter",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "Why Templates Matter",
+    "text": "Why Templates Matter\nMost chat-focused LLMs are trained with a specific template. Using a different one at inference or fine-tuning time can degrade performance.\nIf your input doesn’t match the format the model was trained on, it might misunderstand the structure of the conversation, confuse roles, or produce weaker responses."
   },
   {
-    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#prerequisites",
-    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#prerequisites",
-    "title": "Scraping the most listened podcast in France, GDIY",
-    "section": "Prerequisites",
-    "text": "Prerequisites\nBefore we dive into the details, you need to install the prerequisites by running: pip install requests beautifulsoup4 tqdm"
+    "objectID": "posts/prompt_template/templating.html#a-quick-experiment",
+    "href": "posts/prompt_template/templating.html#a-quick-experiment",
+    "title": "Chat Templates: Structuring LLM Conversations",
+    "section": "A Quick Experiment",
+    "text": "A Quick Experiment\nFor this purpose, Daniel Furman made an experiment and shared some interesting results in this GitHub issue conversation.\nBelow is a table from his results:\n\n\n\nimage\n\n\nIt’s easy to see from the table that using the right template has a big effect on the quality of the generation.\nThat’s why, when fine-tuning or evaluating chat-based models, matching the training-time template is crucial."
   },
   {
-    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#understanding-the-python-script",
-    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#understanding-the-python-script",
-    "title": "Scraping the most listened podcast in France, GDIY",
-    "section": "Understanding the Python Script",
-    "text": "Understanding the Python Script\nLet’s delve into the Python script that automates the process of downloading podcast episodes. I will introduce you to a class named AudioLoader that is equipped with methods to perform various tasks such as loading, updating, downloading, and processing audio data.\n\nClass Initialization\nThe AudioLoader class initializes with a data_path parameter which is the path to save the downloaded audio files and keep track of loaded episodes. The loaded_episodes set stores the loaded episode names.\nclass AudioLoader(object):\n    def __init__(self, data_path):\n        self.data_path = data_path\n        self.loaded_episodes = self.load_loaded_episodes()\n\n\nLoading and Updating Episode Details\nThe load_loaded_episodes method checks for the existence of a loaded_episodes.json file and creates one if it doesn’t exist, to store the details of loaded episodes.\nThe update_loaded_episodes method updates the loaded_episodes set and JSON file with new episode details.\ndef load_loaded_episodes(self):\n        if not os.path.exists(os.path.join(self.data_path,'loaded_episodes.json')):\n            with open(os.path.join(self.data_path,'loaded_episodes.json'), 'w') as f:\n                json.dump([], f)\n        with open(os.path.join(self.data_path,'loaded_episodes.json'), 'r') as f:\n            return set(json.load(f))\n        \ndef update_loaded_episodes(self, episode_id):\n    self.loaded_episodes.add(episode_id)\n    with open(os.path.join(self.data_path,'loaded_episodes.json'), 'w') as f:\n        json.dump(list(self.loaded_episodes), f)\n\n\nFetching and Processing Data\nThe load_data method fetches all episodes from the podcast’s RSS feed using the requests and BeautifulSoup libraries.\nThe process_data method iterates over all episodes and filters out those with certain phrases in the title (like “[EXTRAIT]”). It also prevents downloading episodes that have already been loaded.\ndef load_data(self, feed_url):\n        page = requests.get(feed_url)\n        soup = BeautifulSoup(page.content, \"xml\")\n        return soup.find_all('item')\n    \ndef process_data(self):\n    all_name = set()\n    audio_info = {}\n    audio_to_skip = [\"[EXTRAIT]\",\"[EXTRACT]\",\"[REDIFF]\"]\n    data = self.load_data(\"https://rss.art19.com/generation-do-it-yourself\")\n    for episode in data:\n        link = episode.find(\"enclosure\")[\"url\"]\n        title = episode.find(\"title\").text\n        episode_id = \" \".join(title.split(\" - \")[:-1]).replace(\"#\", \"\")\n        episode_id = re.sub(r'[%/!@#\\*\\$\\?\\+\\^\\\\\\\\\\\\]', '', episode_id)\n        \n        skip = [skip_audio for skip_audio in audio_to_skip if skip_audio in title]\n        if not skip:\n\n            if episode_id not in self.loaded_episodes:\n                try:\n                    episode_id = self.simplify_name(episode_id)\n                except:\n                    print(title)\n\n                if episode_id in all_name:\n                    episode_id = episode_id+\"-1\"\n                audio_info[episode_id] = title\n                all_name.add(episode_id)\n                self.download_episode(link, episode_id)\n                self.update_loaded_episodes(episode_id)\n    \n    return audio_info\n\n\nDownloading Episodes\nThe download_episode method downloads an episode’s audio file and saves it with a simplified name derived from the title.\ndef download_episode(self, episode_url, audio_name):\n    audio = requests.get(episode_url)\n    with open(os.path.join(self.data_path, audio_name+\".mp3\"), \"wb\") as fp:\n        fp.write(audio.content)\n\n\nSimplifying File Names\nThe simplify_name method simplifies episode names based on certain conditions to create a clean and concise file name for each downloaded audio file.\ndef simplify_name(self, file_name:str):\n    file_name = file_name.strip()\n    if file_name.startswith(\"COVID\"):\n        new_filename = \"-\".join(file_name.split()[:2])\n    elif file_name.lower().startswith(\"hors\"):\n        new_filename = file_name.split()\n        new_filename = \"-\".join(new_filename[:2])\n    elif file_name.startswith(\"Early\"):\n        new_filename = \"-\".join(file_name.split()[:3])\n    else:\n        new_filename = file_name.split()[0]\n    return new_filename"
-  },
-  {
-    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#conclusion",
-    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#conclusion",
-    "title": "Scraping the most listened podcast in France, GDIY",
+    "objectID": "posts/prompt_template/templating.html#conclusion",
+    "href": "posts/prompt_template/templating.html#conclusion",
+    "title": "Chat Templates: Structuring LLM Conversations",
     "section": "Conclusion",
-    "text": "Conclusion\nWith this Python script, you can automatically load and download episodes of the Generation Do It Yourself podcast, saving you time and effort. You can customize the script to work with other podcasts by modifying the RSS feed URL and adjusting the naming conventions in the simplify_name method.\nFeel free to extend this script with more features, such as adding metadata to the audio files."
+    "text": "Conclusion\nChat templates are a small but critical detail when working with modern LLMs. Using the correct template when fine-tuning, evaluating, or prompting a model ensures that the model interprets your input as intended and produces better results. When building training pipelines or evaluation harnesses, make template handling a first-class concern, not an afterthought."
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html",
+    "href": "posts/layernorm-rmsnorm/normalization.html",
+    "title": "Normalization in Transformers",
+    "section": "",
+    "text": "Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:\nKey benefits of normalization:\n\nPrevents overfitting.\nImproves generalization.\nStabilizes training dynamics.\nBoosts performance on large-scale tasks."
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#introduction",
+    "href": "posts/layernorm-rmsnorm/normalization.html#introduction",
+    "title": "Normalization in Transformers",
+    "section": "",
+    "text": "Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:\nKey benefits of normalization:\n\nPrevents overfitting.\nImproves generalization.\nStabilizes training dynamics.\nBoosts performance on large-scale tasks."
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#normalization-methods-in-transformers",
+    "href": "posts/layernorm-rmsnorm/normalization.html#normalization-methods-in-transformers",
+    "title": "Normalization in Transformers",
+    "section": "Normalization Methods in Transformers",
+    "text": "Normalization Methods in Transformers\nThere are many normalization methods in Transformers. Some of them are:\n\nLayer Normalization (LayerNorm)\nRoot Mean Square Normalization (RMSNorm)"
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#layernorm",
+    "href": "posts/layernorm-rmsnorm/normalization.html#layernorm",
+    "title": "Normalization in Transformers",
+    "section": "LayerNorm",
+    "text": "LayerNorm\nLayerNorm is a normalization method that is used in the original Transformer model. It is used to normalize the input to the model. The formula for LayerNorm is:\n\\[\ny = \\gamma \\times \\frac{x - \\mu}{\\sigma + \\epsilon} + \\beta\n\\]\n\n\\(x\\): Input tensor\n\n\\(\\mu\\): Mean of the features\n\n\\(\\sigma\\): Standard deviation of the features\n\n\\(\\epsilon\\): Small constant for numerical stability\n\n\\(\\gamma\\), \\(\\beta\\): Learnable scale and bias parameters\n\nPyTorch Implementation:\nimport torch\nimport torch.nn as nn\n\nclass SimpleLayerNorm(nn.Module):\n    def __init__(self, layer_shape, eps: float = 1e-6) -&gt; None:\n        super().__init__()\n        self.layer_shape = (layer_shape,) if isinstance(layer_shape, int) else tuple(layer_shape)\n        self.eps = eps\n        self.gamma = nn.Parameter(torch.ones(*self.layer_shape))\n        self.beta = nn.Parameter(torch.zeros(*self.layer_shape))\n\n    def forward(self, x: torch.Tensor):\n        start_dim = x.dim() - len(self.layer_shape)\n        norm_dim = tuple(range(start_dim, x.dim()))\n        variance = x.var(norm_dim, keepdim=True, unbiased=False)\n        mean = x.mean(norm_dim, keepdim=True)\n        norm_x = (x - mean) / torch.sqrt(variance + self.eps)\n        norm_x = self.gamma*norm_x + self.beta\n        return norm_x"
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#rmsnorm",
+    "href": "posts/layernorm-rmsnorm/normalization.html#rmsnorm",
+    "title": "Normalization in Transformers",
+    "section": "RMSNorm",
+    "text": "RMSNorm\nRMSNorm is a more recent variant used in models like LLaMA-3 and Qwen-3. It removes the mean subtraction step, normalizing only by the Root Mean Square (RMS) of activations.\n\\[\ny = \\frac{x}{\\sqrt{\\epsilon + \\sum_{i=1}^n x_i^2}}\\] where \\(x\\) is the input, \\(y\\) is the output, and \\(\\epsilon\\) is a small constant.\nIn Python, you can use the following code to implement RMSNorm:\nimport torch\nimport torch.nn as nn\n\n\nclass RMSNorm(nn.Module):\n    def __init__(self, emb_dim, eps=1e-6, bias=False, qwen3_compatible=True):\n        super().__init__()\n        self.eps = eps\n        self.qwen3_compatible = qwen3_compatible\n        self.scale = nn.Parameter(torch.ones(emb_dim))\n        self.shift = nn.Parameter(torch.zeros(emb_dim)) if bias else None\n\n    def forward(self, x):\n        input_dtype = x.dtype\n\n        if self.qwen3_compatible:\n            x = x.to(torch.float32)\n\n        variance = x.pow(2).mean(dim=-1, keepdim=True)\n        norm_x = x * torch.rsqrt(variance + self.eps)\n        norm_x = norm_x * self.scale\n\n        if self.shift is not None:\n            norm_x = norm_x + self.shift\n\n        return norm_x.to(input_dtype)\nRMSNorm is computationally more efficient than LayerNorm and is used in many models today such as QWen-3 and LLaMA-3."
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#conclusion",
+    "href": "posts/layernorm-rmsnorm/normalization.html#conclusion",
+    "title": "Normalization in Transformers",
+    "section": "Conclusion",
+    "text": "Conclusion\nNormalization is critical for stable and efficient Transformer training. While LayerNorm remains the standard choice, RMSNorm is increasingly popular in large-scale LLMs for its computational efficiency."
+  },
+  {
+    "objectID": "posts/layernorm-rmsnorm/normalization.html#further-reading",
+    "href": "posts/layernorm-rmsnorm/normalization.html#further-reading",
+    "title": "Normalization in Transformers",
+    "section": "Further Reading",
+    "text": "Further Reading\n\nRMSNorm: The Root Mean Square Layer Normalization\nLayer Normalization\nAttention is all you need"
   },
   {
     "objectID": "posts/msgspec/index.html",
@@ -294,116 +336,74 @@
     "text": "References\n\nPostgreSQL Full-Text Search\npgvector"
   },
   {
-    "objectID": "posts/layernorm-rmsnorm/normalization.html",
-    "href": "posts/layernorm-rmsnorm/normalization.html",
-    "title": "Normalization in Transformers",
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html",
+    "title": "Scraping the most listened podcast in France, GDIY",
     "section": "",
-    "text": "Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:\nKey benefits of normalization:\n\nPrevents overfitting.\nImproves generalization.\nStabilizes training dynamics.\nBoosts performance on large-scale tasks."
+    "text": "The podcast Generation Do It Yourself is one of the most listen in France. I listen this podcast every weekend and I decide to use my programming skill to scrap audio data from the web site. This post will also guide you to download audio from your favorite podcasts."
   },
   {
-    "objectID": "posts/layernorm-rmsnorm/normalization.html#introduction",
-    "href": "posts/layernorm-rmsnorm/normalization.html#introduction",
-    "title": "Normalization in Transformers",
-    "section": "",
-    "text": "Normalization techniques are widely used in Deep Learning. In Transformers, normalization is applied at various points to maintain stable gradients and enable faster convergence. They are used in the following ways:\nKey benefits of normalization:\n\nPrevents overfitting.\nImproves generalization.\nStabilizes training dynamics.\nBoosts performance on large-scale tasks."
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#prerequisites",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#prerequisites",
+    "title": "Scraping the most listened podcast in France, GDIY",
+    "section": "Prerequisites",
+    "text": "Prerequisites\nBefore we dive into the details, you need to install the prerequisites by running: pip install requests beautifulsoup4 tqdm"
   },
   {
-    "objectID": "posts/layernorm-rmsnorm/normalization.html#normalization-methods-in-transformers",
-    "href": "posts/layernorm-rmsnorm/normalization.html#normalization-methods-in-transformers",
-    "title": "Normalization in Transformers",
-    "section": "Normalization Methods in Transformers",
-    "text": "Normalization Methods in Transformers\nThere are many normalization methods in Transformers. Some of them are:\n\nLayer Normalization (LayerNorm)\nRoot Mean Square Normalization (RMSNorm)"
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#understanding-the-python-script",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#understanding-the-python-script",
+    "title": "Scraping the most listened podcast in France, GDIY",
+    "section": "Understanding the Python Script",
+    "text": "Understanding the Python Script\nLet’s delve into the Python script that automates the process of downloading podcast episodes. I will introduce you to a class named AudioLoader that is equipped with methods to perform various tasks such as loading, updating, downloading, and processing audio data.\n\nClass Initialization\nThe AudioLoader class initializes with a data_path parameter which is the path to save the downloaded audio files and keep track of loaded episodes. The loaded_episodes set stores the loaded episode names.\nclass AudioLoader(object):\n    def __init__(self, data_path):\n        self.data_path = data_path\n        self.loaded_episodes = self.load_loaded_episodes()\n\n\nLoading and Updating Episode Details\nThe load_loaded_episodes method checks for the existence of a loaded_episodes.json file and creates one if it doesn’t exist, to store the details of loaded episodes.\nThe update_loaded_episodes method updates the loaded_episodes set and JSON file with new episode details.\ndef load_loaded_episodes(self):\n        if not os.path.exists(os.path.join(self.data_path,'loaded_episodes.json')):\n            with open(os.path.join(self.data_path,'loaded_episodes.json'), 'w') as f:\n                json.dump([], f)\n        with open(os.path.join(self.data_path,'loaded_episodes.json'), 'r') as f:\n            return set(json.load(f))\n        \ndef update_loaded_episodes(self, episode_id):\n    self.loaded_episodes.add(episode_id)\n    with open(os.path.join(self.data_path,'loaded_episodes.json'), 'w') as f:\n        json.dump(list(self.loaded_episodes), f)\n\n\nFetching and Processing Data\nThe load_data method fetches all episodes from the podcast’s RSS feed using the requests and BeautifulSoup libraries.\nThe process_data method iterates over all episodes and filters out those with certain phrases in the title (like “[EXTRAIT]”). It also prevents downloading episodes that have already been loaded.\ndef load_data(self, feed_url):\n        page = requests.get(feed_url)\n        soup = BeautifulSoup(page.content, \"xml\")\n        return soup.find_all('item')\n    \ndef process_data(self):\n    all_name = set()\n    audio_info = {}\n    audio_to_skip = [\"[EXTRAIT]\",\"[EXTRACT]\",\"[REDIFF]\"]\n    data = self.load_data(\"https://rss.art19.com/generation-do-it-yourself\")\n    for episode in data:\n        link = episode.find(\"enclosure\")[\"url\"]\n        title = episode.find(\"title\").text\n        episode_id = \" \".join(title.split(\" - \")[:-1]).replace(\"#\", \"\")\n        episode_id = re.sub(r'[%/!@#\\*\\$\\?\\+\\^\\\\\\\\\\\\]', '', episode_id)\n        \n        skip = [skip_audio for skip_audio in audio_to_skip if skip_audio in title]\n        if not skip:\n\n            if episode_id not in self.loaded_episodes:\n                try:\n                    episode_id = self.simplify_name(episode_id)\n                except:\n                    print(title)\n\n                if episode_id in all_name:\n                    episode_id = episode_id+\"-1\"\n                audio_info[episode_id] = title\n                all_name.add(episode_id)\n                self.download_episode(link, episode_id)\n                self.update_loaded_episodes(episode_id)\n    \n    return audio_info\n\n\nDownloading Episodes\nThe download_episode method downloads an episode’s audio file and saves it with a simplified name derived from the title.\ndef download_episode(self, episode_url, audio_name):\n    audio = requests.get(episode_url)\n    with open(os.path.join(self.data_path, audio_name+\".mp3\"), \"wb\") as fp:\n        fp.write(audio.content)\n\n\nSimplifying File Names\nThe simplify_name method simplifies episode names based on certain conditions to create a clean and concise file name for each downloaded audio file.\ndef simplify_name(self, file_name:str):\n    file_name = file_name.strip()\n    if file_name.startswith(\"COVID\"):\n        new_filename = \"-\".join(file_name.split()[:2])\n    elif file_name.lower().startswith(\"hors\"):\n        new_filename = file_name.split()\n        new_filename = \"-\".join(new_filename[:2])\n    elif file_name.startswith(\"Early\"):\n        new_filename = \"-\".join(file_name.split()[:3])\n    else:\n        new_filename = file_name.split()[0]\n    return new_filename"
   },
   {
-    "objectID": "posts/layernorm-rmsnorm/normalization.html#layernorm",
-    "href": "posts/layernorm-rmsnorm/normalization.html#layernorm",
-    "title": "Normalization in Transformers",
-    "section": "LayerNorm",
-    "text": "LayerNorm\nLayerNorm is a normalization method that is used in the original Transformer model. It is used to normalize the input to the model. The formula for LayerNorm is:\n\\[\ny = \\gamma \\times \\frac{x - \\mu}{\\sigma + \\epsilon} + \\beta\n\\]\n\n\\(x\\): Input tensor\n\n\\(\\mu\\): Mean of the features\n\n\\(\\sigma\\): Standard deviation of the features\n\n\\(\\epsilon\\): Small constant for numerical stability\n\n\\(\\gamma\\), \\(\\beta\\): Learnable scale and bias parameters\n\nPyTorch Implementation:\nimport torch\nimport torch.nn as nn\n\nclass SimpleLayerNorm(nn.Module):\n    def __init__(self, layer_shape, eps: float = 1e-6) -&gt; None:\n        super().__init__()\n        self.layer_shape = (layer_shape,) if isinstance(layer_shape, int) else tuple(layer_shape)\n        self.eps = eps\n        self.gamma = nn.Parameter(torch.ones(*self.layer_shape))\n        self.beta = nn.Parameter(torch.zeros(*self.layer_shape))\n\n    def forward(self, x: torch.Tensor):\n        start_dim = x.dim() - len(self.layer_shape)\n        norm_dim = tuple(range(start_dim, x.dim()))\n        variance = x.var(norm_dim, keepdim=True, unbiased=False)\n        mean = x.mean(norm_dim, keepdim=True)\n        norm_x = (x - mean) / torch.sqrt(variance + self.eps)\n        norm_x = self.gamma*norm_x + self.beta\n        return norm_x"
-  },
-  {
-    "objectID": "posts/layernorm-rmsnorm/normalization.html#rmsnorm",
-    "href": "posts/layernorm-rmsnorm/normalization.html#rmsnorm",
-    "title": "Normalization in Transformers",
-    "section": "RMSNorm",
-    "text": "RMSNorm\nRMSNorm is a more recent variant used in models like LLaMA-3 and Qwen-3. It removes the mean subtraction step, normalizing only by the Root Mean Square (RMS) of activations.\n\\[\ny = \\frac{x}{\\sqrt{\\epsilon + \\sum_{i=1}^n x_i^2}}\\] where \\(x\\) is the input, \\(y\\) is the output, and \\(\\epsilon\\) is a small constant.\nIn Python, you can use the following code to implement RMSNorm:\nimport torch\nimport torch.nn as nn\n\n\nclass RMSNorm(nn.Module):\n    def __init__(self, emb_dim, eps=1e-6, bias=False, qwen3_compatible=True):\n        super().__init__()\n        self.eps = eps\n        self.qwen3_compatible = qwen3_compatible\n        self.scale = nn.Parameter(torch.ones(emb_dim))\n        self.shift = nn.Parameter(torch.zeros(emb_dim)) if bias else None\n\n    def forward(self, x):\n        input_dtype = x.dtype\n\n        if self.qwen3_compatible:\n            x = x.to(torch.float32)\n\n        variance = x.pow(2).mean(dim=-1, keepdim=True)\n        norm_x = x * torch.rsqrt(variance + self.eps)\n        norm_x = norm_x * self.scale\n\n        if self.shift is not None:\n            norm_x = norm_x + self.shift\n\n        return norm_x.to(input_dtype)\nRMSNorm is computationally more efficient than LayerNorm and is used in many models today such as QWen-3 and LLaMA-3."
-  },
-  {
-    "objectID": "posts/layernorm-rmsnorm/normalization.html#conclusion",
-    "href": "posts/layernorm-rmsnorm/normalization.html#conclusion",
-    "title": "Normalization in Transformers",
+    "objectID": "posts/gdiy/2023-08-06-scrap-gdiy.html#conclusion",
+    "href": "posts/gdiy/2023-08-06-scrap-gdiy.html#conclusion",
+    "title": "Scraping the most listened podcast in France, GDIY",
     "section": "Conclusion",
-    "text": "Conclusion\nNormalization is critical for stable and efficient Transformer training. While LayerNorm remains the standard choice, RMSNorm is increasingly popular in large-scale LLMs for its computational efficiency."
+    "text": "Conclusion\nWith this Python script, you can automatically load and download episodes of the Generation Do It Yourself podcast, saving you time and effort. You can customize the script to work with other podcasts by modifying the RSS feed URL and adjusting the naming conventions in the simplify_name method.\nFeel free to extend this script with more features, such as adding metadata to the audio files."
   },
   {
-    "objectID": "posts/layernorm-rmsnorm/normalization.html#further-reading",
-    "href": "posts/layernorm-rmsnorm/normalization.html#further-reading",
-    "title": "Normalization in Transformers",
-    "section": "Further Reading",
-    "text": "Further Reading\n\nRMSNorm: The Root Mean Square Layer Normalization\nLayer Normalization\nAttention is all you need"
-  },
-  {
-    "objectID": "posts/prompt_template/templating.html",
-    "href": "posts/prompt_template/templating.html",
-    "title": "Chat Templates: Structuring LLM Conversations",
+    "objectID": "posts/moore_keyboard/index.html",
+    "href": "posts/moore_keyboard/index.html",
+    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
     "section": "",
-    "text": "Chat templates are used in chat models such as ChatGPT and Qwen to structure multi-turn conversations. If you’ve ever fine-tuned a chat model and gotten surprisingly poor results, the culprit might not be your data or hyperparameters; it could be your chat template. Chat templates define how conversations are structured when talking to models like ChatGPT or Qwen, and using the wrong one can silently hurt your model’s performance."
+    "text": "Mooré uses letters that are not on a French keyboard: ɛ, ɩ, ʋ and nasal vowels like ã, ẽ, ũ. The usual answer is to install Keyman and the Clavier du Burkina keyboard from SIL Burkina Faso. On Windows, that works well. On Linux with an AZERTY keyboard, it does not."
   },
   {
-    "objectID": "posts/prompt_template/templating.html#example",
-    "href": "posts/prompt_template/templating.html#example",
-    "title": "Chat Templates: Structuring LLM Conversations",
-    "section": "Example",
-    "text": "Example\nLet’s start with a simple chat:\nchat = [\n{\"role\": \"system\", \"content\": \"You are a helpful assistant.\"},\n{\"role\": \"user\", \"content\": \"What is the capital of France?\"},\n{\"role\": \"assistant\", \"content\": \"Paris is the capital of France.\"},\n]"
+    "objectID": "posts/moore_keyboard/index.html#the-problem-keyman-switches-you-to-qwerty",
+    "href": "posts/moore_keyboard/index.html#the-problem-keyman-switches-you-to-qwerty",
+    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
+    "section": "The problem: Keyman switches you to QWERTY",
+    "text": "The problem: Keyman switches you to QWERTY\nI installed Keyman and Clavier du Burkina on Ubuntu (GNOME). My keyboard is AZERTY, but my system language is English. As soon as I switched to the Keyman keyboard, typing the key labelled A gave q, and Z gave w. The layout was QWERTY.\nThe system language is not the cause. Every Keyman keyboard registered in IBus declares a US layout:\npython3 -c \"\nimport gi; gi.require_version('IBus', '1.0'); from gi.repository import IBus\nfor e in IBus.Bus().list_engines():\n    if 'keyman' in e.get_name():\n        print(e.get_name(), e.get_layout())\n\"\n# mos:/home/.../clavbur9/clavbur9.kmx us\nWhen you activate the engine, GNOME switches the keyboard to us. On my machine, setxkbmap -query showed layout: fr,us,us. Keyman for Linux also reads keys by their position on a US keyboard, and Keyman 18 has no setting to use a different base layout.\nSo on Linux, Clavier du Burkina only works if you type as if on QWERTY."
   },
   {
-    "objectID": "posts/prompt_template/templating.html#applying-a-chat-template",
-    "href": "posts/prompt_template/templating.html#applying-a-chat-template",
-    "title": "Chat Templates: Structuring LLM Conversations",
-    "section": "Applying a Chat Template",
-    "text": "Applying a Chat Template\nTo apply a template we can call the method tokenizer.apply_chat_template() like this:\nfrom transformers import AutoTokenizer\nmodel_id = \"LiquidAI/LFM2-350M\"\ntokenizer = AutoTokenizer.from_pretrained(model_id)\ninputs = tokenizer.apply_chat_template(chat, tokenize=False)\nprint(inputs)\nThis produces the following text:\n&lt;|startoftext|&gt;&lt;|im_start|&gt;system\nYou are a helpful assistant.&lt;|im_end|&gt;\n&lt;|im_start|&gt;user\nWhat is the capital of France?&lt;|im_end|&gt;\n&lt;|im_start|&gt;assistant\nParis is the capital of France.&lt;|im_end|&gt;"
+    "objectID": "posts/moore_keyboard/index.html#the-fix-the-french-togo-layout",
+    "href": "posts/moore_keyboard/index.html#the-fix-the-french-togo-layout",
+    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
+    "section": "The fix: the French (Togo) layout",
+    "text": "The fix: the French (Togo) layout\nLinux already includes a keyboard layout for this: French (Togo) (tg in XKB). It is standard French AZERTY with West African letters added on AltGr (the right Alt key). No Keyman needed.\nTo add it:\n\nOpen Settings → Keyboard.\nUnder Input Sources, click + Add Input Source.\nChoose French → French (Togo). If it isn’t listed, click ⋮ and search for “Togo”.\nPress Super + Space to switch between layouts.\n\nOr from a terminal:\ngsettings set org.gnome.desktop.input-sources sources \"[('xkb', 'fr'), ('xkb', 'tg')]\""
   },
   {
-    "objectID": "posts/prompt_template/templating.html#how-it-works",
-    "href": "posts/prompt_template/templating.html#how-it-works",
-    "title": "Chat Templates: Structuring LLM Conversations",
-    "section": "How it Works",
-    "text": "How it Works\nIt assigns roles such as system, user, assistant. Basically it is as follows:\n\nsystem: The instruction to control the LLM behavior\nuser: The user question to the LLM\nassistant: The LLM response\n\nSome models may support additional roles, such as tool for tool-calling contexts."
+    "objectID": "posts/moore_keyboard/index.html#typing-the-mooré-letters",
+    "href": "posts/moore_keyboard/index.html#typing-the-mooré-letters",
+    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
+    "section": "Typing the Mooré letters",
+    "text": "Typing the Mooré letters\n\n\n\nLetter\nKeys\n\n\n\n\nɛ / Ɛ\nAltGr + r / AltGr + Shift + r\n\n\nɩ / Ɩ\nAltGr + i / AltGr + Shift + i\n\n\nʋ / Ʋ\nAltGr + v / AltGr + Shift + v\n\n\nã\nAltGr + !, then a\n\n\nẽ\nAltGr + !, then e\n\n\nũ\nAltGr + !, then u\n\n\n\nAltGr + ! is a dead key: nothing appears when you press it, and the tilde goes on the next letter you type. Press the tilde first, then the vowel. This works with capitals too (Ã, Ẽ, Ũ) and with ɛ and ɔ (ɛ̃, ɔ̃).\nThe layout also has other letters used in the region:\n\n\n\nLetter\nKeys\n\n\n\n\nɔ\nAltGr + o\n\n\nŋ\nAltGr + n\n\n\nɲ\nAltGr + m\n\n\nɓ\nAltGr + b\n\n\nɗ\nAltGr + t\n\n\nƴ\nAltGr + y\n\n\nɣ\nAltGr + g\n\n\n\nTone marks are dead keys as well: acute AltGr + *, grave AltGr + ù, macron AltGr + : and caron AltGr + ^."
   },
   {
-    "objectID": "posts/prompt_template/templating.html#under-the-hood",
-    "href": "posts/prompt_template/templating.html#under-the-hood",
-    "title": "Chat Templates: Structuring LLM Conversations",
-    "section": "Under the Hood",
-    "text": "Under the Hood\nUnder the hood, the tokenizer uses jinja to handle chat templates. It can be seen in the model repo on HF in the tokenizer_config.json file or chat_template.jinja file.\nHere’s a simple example of what a Jinja-based chat template might look like inside a model:\n{{bos_token}}{% for message in messages %}{{'&lt;|im_start|&gt;' + message['role'] + '\n\n' + message['content'] + '&lt;|im_end|&gt;' + '\n\n'}}{% endfor %}{% if add_generation_prompt %}{{ '&lt;|im_start|&gt;assistant\n\n' }}{% endif %}"
+    "objectID": "posts/moore_keyboard/index.html#windows",
+    "href": "posts/moore_keyboard/index.html#windows",
+    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
+    "section": "Windows",
+    "text": "Windows\nYou can download the Windows version of Keyman from keyman.com/windows/download. The Clavier du Burkina keyboard (clavbur9) works well if you already type on a French AZERTY layout. It keeps the familiar AZERTY keys and adds Mooré letters, along with characters for other languages of Burkina Faso, as shown below:\n\n\n\nClavier du Burkina layout in Keyman"
   },
   {
-    "objectID": "posts/prompt_template/templating.html#what-if-a-model-doesnt-have-a-chat-template",
-    "href": "posts/prompt_template/templating.html#what-if-a-model-doesnt-have-a-chat-template",
-    "title": "Chat Templates: Structuring LLM Conversations",
-    "section": "What If a Model Doesn’t Have a Chat Template?",
-    "text": "What If a Model Doesn’t Have a Chat Template?\nNot every model supports chat formatting. If the model does not have a chat template like openai-community/gpt2, calling the method raises ValueError like this:\nValueError: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating\nIn such cases, you can either:\n\nManually define your own Jinja template, or\nUse a text format template\n\nLearn more about chat_templating"
-  },
-  {
-    "objectID": "posts/prompt_template/templating.html#why-templates-matter",
-    "href": "posts/prompt_template/templating.html#why-templates-matter",
-    "title": "Chat Templates: Structuring LLM Conversations",
-    "section": "Why Templates Matter",
-    "text": "Why Templates Matter\nMost chat-focused LLMs are trained with a specific template. Using a different one at inference or fine-tuning time can degrade performance.\nIf your input doesn’t match the format the model was trained on, it might misunderstand the structure of the conversation, confuse roles, or produce weaker responses."
-  },
-  {
-    "objectID": "posts/prompt_template/templating.html#a-quick-experiment",
-    "href": "posts/prompt_template/templating.html#a-quick-experiment",
-    "title": "Chat Templates: Structuring LLM Conversations",
-    "section": "A Quick Experiment",
-    "text": "A Quick Experiment\nFor this purpose, Daniel Furman made an experiment and shared some interesting results in this GitHub issue conversation.\nBelow is a table from his results:\n\n\n\nimage\n\n\nIt’s easy to see from the table that using the right template has a big effect on the quality of the generation.\nThat’s why, when fine-tuning or evaluating chat-based models, matching the training-time template is crucial."
-  },
-  {
-    "objectID": "posts/prompt_template/templating.html#conclusion",
-    "href": "posts/prompt_template/templating.html#conclusion",
-    "title": "Chat Templates: Structuring LLM Conversations",
-    "section": "Conclusion",
-    "text": "Conclusion\nChat templates are a small but critical detail when working with modern LLMs. Using the correct template when fine-tuning, evaluating, or prompting a model ensures that the model interprets your input as intended and produces better results. When building training pipelines or evaluation harnesses, make template handling a first-class concern, not an afterthought."
+    "objectID": "posts/moore_keyboard/index.html#summary",
+    "href": "posts/moore_keyboard/index.html#summary",
+    "title": "Typing Mooré on Linux with an AZERTY Keyboard",
+    "section": "Summary",
+    "text": "Summary\n\nOn Linux, Keyman keyboards use a US QWERTY base, whatever your physical keyboard is.\nIf you type on AZERTY, use the built-in French (Togo) layout.\nɛ, ɩ, ʋ are on AltGr + r, i, v, and nasal vowels are AltGr + ! followed by the vowel.\nOn Windows, Clavier du Burkina works well with a French AZERTY layout."
   },
   {
     "objectID": "draft/data_collators.html",
